@@ -192,18 +192,10 @@ export default function Transactions() {
           </div>
         </TabsContent>
         <TabsContent value="monthly">
-          {Object.values(
-            getAllMonthsSummary(monthly, currentMonthlyYear)
-          ).every((m) => m.income === 0 && m.expenses === 0) ? (
-            <div className="text-center text-muted-foreground py-8">
-              No data for {currentMonthlyYear}
-            </div>
-          ) : (
-            <MonthlySummary
-              months={getAllMonthsSummary(monthly, currentMonthlyYear)}
-              year={currentMonthlyYear}
-            />
-          )}
+          <MonthlySummary
+            months={getAllMonthsSummary(monthly, currentMonthlyYear)}
+            year={currentMonthlyYear}
+          />
         </TabsContent>
       </Tabs>
 

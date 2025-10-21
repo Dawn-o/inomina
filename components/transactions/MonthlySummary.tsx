@@ -14,12 +14,12 @@ export function MonthlySummary({ months, year }: MonthlySummaryProps) {
         });
         return (
           <Card key={monthName} className="h-14 flex items-center">
-            <CardContent className="flex justify-between items-center h-full px-4 py-2 w-full">
-              <span className="font-semibold">{monthName}</span>
-              <span className="text-green-600 font-bold">
+            <CardContent className="flex justify-between items-center h-full px-4 py-1 w-full">
+              <span className="font-semibold w-1/3 text-left">{monthName}</span>
+              <span className="w-1/3 text-center text-green-600 font-bold">
                 ${income.toLocaleString()}
               </span>
-              <span className="text-red-600 font-bold">
+              <span className="w-1/3 text-right text-red-600 font-bold">
                 ${expenses.toLocaleString()}
               </span>
             </CardContent>
