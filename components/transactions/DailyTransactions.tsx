@@ -8,7 +8,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Repeat2, BadgeDollarSign } from "lucide-react";
+import { categories } from "@/lib/categories";
 
 interface Transaction {
   id: number;
@@ -22,6 +23,12 @@ interface Transaction {
   feesAmount?: number;
   transferTarget?: string;
 }
+
+type DailyTransactionsProps = {
+  grouped: {
+    [date: string]: Transaction[];
+  };
+};
 
 function formatDateDisplay(dateStr: string) {
   const date = new Date(dateStr);
@@ -40,8 +47,9 @@ function formatDateDisplay(dateStr: string) {
   };
 }
 
-interface DailyTransactionsProps {
-  grouped: Record<string, Transaction[]>;
+function getCategoryIcon(category: string | undefined) {
+  const found = categories.find((cat) => cat.value === category);
+  return found ? found.icon : null;
 }
 
 export function DailyTransactions({ grouped }: DailyTransactionsProps) {
@@ -55,13 +63,13 @@ export function DailyTransactions({ grouped }: DailyTransactionsProps) {
             <Card key={date}>
               <CardHeader className="flex flex-row items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-violet-600 text-white px-3 py-2 text-lg font-bold">
+                  <span className="rounded-full bg-violet-600 text-white px-3 py-2 text-lg font-bold w-12 text-center">
                     {display.day}
                   </span>
-                  <span className="rounded bg-violet-100 text-violet-700 px-2 py-1 text-xs font-semibold">
+                  <span className="rounded bg-violet-100 text-violet-700 px-2 py-1 text-xs font-semibold w-12 text-center">
                     {display.weekday}
                   </span>
-                  <span className="text-muted-foreground text-sm ml-2">
+                  <span className="text-muted-foreground text-sm ml-2 w-20 text-left">
                     {display.dateString}
                   </span>
                 </div>
@@ -70,59 +78,91 @@ export function DailyTransactions({ grouped }: DailyTransactionsProps) {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Method</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead className="w-1/3 text-left">
+                        Category
+                      </TableHead>
+                      <TableHead className="w-1/3 text-center">
+                        Method
+                      </TableHead>
+                      <TableHead className="w-1/4 text-right">Amount</TableHead>
+                      <TableHead className="w-1/6 text-center pl-4">
+                        Actions
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {grouped[date].map((tx) => (
-                      <TableRow key={tx.id}>
-                        <TableCell>
-                          {tx.type === "Transfer" ? "Transfer" : tx.category}
-                        </TableCell>
-                        <TableCell>{tx.method}</TableCell>
-                        <TableCell
-                          className={
-                            tx.type === "Transfer"
-                              ? tx.transferTarget === "Other"
-                                ? "text-red-600"
-                                : ""
-                              : tx.amount > 0
-                              ? "text-green-600"
-                              : "text-red-600"
-                          }
-                        >
-                          ${Math.abs(tx.amount).toLocaleString()}
-                        </TableCell>
-                        <TableCell className="text-right space-x-2">
-                          <Button size="icon" variant="ghost">
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="text-red-600 hover:bg-red-50"
+                    {grouped[date].map((tx: Transaction) => {
+                      const Icon: React.ComponentType<{
+                        className?: string;
+                      }> | null = getCategoryIcon(tx.category);
+                      return (
+                        <TableRow key={tx.id}>
+                          <TableCell className="w-1/3 text-left">
+                            <div className="flex items-center gap-2">
+                              {tx.type === "Transfer" ? (
+                                <>
+                                  <Repeat2 className="h-4 w-4" />
+                                  <span>Transfer</span>
+                                </>
+                              ) : (
+                                <>
+                                  {Icon && <Icon className="h-4 w-4" />}
+                                  <span>{tx.category}</span>
+                                </>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="w-1/3 text-center">
+                            {tx.method}
+                          </TableCell>
+                          <TableCell
+                            className={`w-1/4 text-right font-bold ${
+                              tx.type === "Transfer"
+                                ? tx.transferTarget === "Other"
+                                  ? "text-red-600"
+                                  : ""
+                                : tx.amount > 0
+                                ? "text-green-600"
+                                : "text-red-600"
+                            }`}
                           >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                            ${Math.abs(tx.amount).toLocaleString()}
+                          </TableCell>
+                          <TableCell className="w-1/6 text-right pl-4 space-x-2">
+                            <Button size="icon" variant="ghost">
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="text-red-600 hover:bg-red-50"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                     {grouped[date]
                       .filter(
-                        (tx) =>
+                        (tx: Transaction) =>
                           tx.type === "Transfer" && tx.hasFees && tx.feesAmount
                       )
-                      .map((tx, idx) => (
+                      .map((tx: Transaction, idx: number) => (
                         <TableRow key={`fees-${tx.id}-${idx}`}>
-                          <TableCell>Other (Transfer Fee)</TableCell>
-                          <TableCell>{tx.method}</TableCell>
-                          <TableCell className="text-red-600">
+                          <TableCell className="w-1/3 text-left">
+                            <div className="flex items-center gap-2">
+                              <BadgeDollarSign className="h-4 w-4" />
+                              <span>Other (Transfer Fee)</span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="w-1/3 text-center">
+                            {tx.method}
+                          </TableCell>
+                          <TableCell className="w-1/4 text-right font-bold text-red-600">
                             ${Number(tx.feesAmount).toLocaleString()}
                           </TableCell>
-                          <TableCell />
+                          <TableCell className="w-1/6" />
                         </TableRow>
                       ))}
                   </TableBody>
