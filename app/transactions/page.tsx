@@ -7,9 +7,19 @@ import { DailyTransactions } from "@/components/transactions/DailyTransactions";
 import { SummaryCards } from "@/components/transactions/SummaryCards";
 import { NavigationBar } from "@/components/transactions/NavigationBar";
 import { TransactionDialog } from "@/components/transactions/TransactionDialog";
-import { groupByDate, getSummary, getMonthlySummary, getAllMonthsSummary} from "@/lib/transactions";
+import {
+  groupByDate,
+  getSummary,
+  getMonthlySummary,
+  getAllMonthsSummary,
+} from "@/lib/transactions";
 import { initialTransactions } from "@/lib/data";
-import { getInitialForm, handleFormChange, handleFormSelect, handleTypeSelect} from "@/lib/form";
+import {
+  getInitialForm,
+  handleFormChange,
+  handleFormSelect,
+  handleTypeSelect,
+} from "@/lib/form";
 import { handlePrevTab, handleNextTab } from "@/lib/navigation";
 import type { Transaction, TransactionType, TransferTarget } from "@/lib/types";
 import { TransactionsHeader } from "@/components/transactions/TransactionsHeader";
