@@ -12,6 +12,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Logo } from "./Logo";
 
@@ -19,7 +20,7 @@ export function Sidebars() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className="mt-2.5">
+        <div className="mt-2.5 flex items-center justify-between">
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
@@ -27,6 +28,7 @@ export function Sidebars() {
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
+          <SidebarTrigger className="block md:hidden" />
         </div>
       </SidebarHeader>
       <SidebarContent>

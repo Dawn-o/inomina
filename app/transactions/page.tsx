@@ -7,23 +7,13 @@ import { DailyTransactions } from "@/components/transactions/DailyTransactions";
 import { SummaryCards } from "@/components/transactions/SummaryCards";
 import { NavigationBar } from "@/components/transactions/NavigationBar";
 import { TransactionDialog } from "@/components/transactions/TransactionDialog";
-import {
-  groupByDate,
-  getSummary,
-  getMonthlySummary,
-  getAllMonthsSummary,
-} from "@/lib/transactions";
+import { groupByDate, getSummary, getMonthlySummary, getAllMonthsSummary} from "@/lib/transactions";
 import { initialTransactions } from "@/lib/data";
-import {
-  getInitialForm,
-  handleFormChange,
-  handleFormSelect,
-  handleTypeSelect,
-} from "@/lib/form";
+import { getInitialForm, handleFormChange, handleFormSelect, handleTypeSelect} from "@/lib/form";
 import { handlePrevTab, handleNextTab } from "@/lib/navigation";
 import type { Transaction, TransactionType, TransferTarget } from "@/lib/types";
 import { TransactionsHeader } from "@/components/transactions/TransactionsHeader";
-import { Empty } from "@/components/ui/empty"; // If you don't have this, use Alert or Card from shadcn
+import { EmptyState } from "@/components/display/EmptyState";
 
 export default function Transactions() {
   const [transactions, setTransactions] =
@@ -155,39 +145,28 @@ export default function Transactions() {
       <Tabs value={tab} className="w-full">
         <TabsContent value="daily">
           {filteredTransactions.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="text-muted-foreground text-center">
-                <span className="text-lg font-semibold">
-                  No transactions found
-                </span>
-                <div className="mt-2 text-sm">
-                  Add a transaction to get started.
-                </div>
-              </div>
-            </div>
+            <EmptyState
+              title="No transactions found"
+              description="Add a transaction to get started."
+            />
           ) : (
             <DailyTransactions grouped={grouped} />
           )}
         </TabsContent>
         <TabsContent value="calendar">
-          <div className="flex items-center justify-center min-h-[200px] text-muted-foreground">
-            Calendar view coming soon...
-          </div>
+          <EmptyState
+            title="Calendar view coming soon"
+            description="This feature will be available in a future update."
+          />
         </TabsContent>
         <TabsContent value="monthly">
           {Object.values(
             getAllMonthsSummary(monthly, currentMonthlyYear)
           ).every((m) => m.income === 0 && m.expenses === 0) ? (
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="text-muted-foreground text-center">
-                <span className="text-lg font-semibold">
-                  No monthly data found
-                </span>
-                <div className="mt-2 text-sm">
-                  Try adding transactions for this year.
-                </div>
-              </div>
-            </div>
+            <EmptyState
+              title="No monthly data found"
+              description="Try adding transactions for this year."
+            />
           ) : (
             <MonthlySummary
               months={getAllMonthsSummary(monthly, currentMonthlyYear)}

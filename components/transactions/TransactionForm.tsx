@@ -1,13 +1,7 @@
 import { DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import { Toggle } from "@/components/ui/toggle";
 import { Button } from "@/components/ui/button";
 import { categories } from "@/lib/categories";
@@ -72,50 +66,74 @@ export function TransactionForm({
             step="0.01"
           />
         </div>
-        <div className="flex gap-4">
-          <div className="flex-1">
-            <Label htmlFor="category" className="mb-2 block">
-              Category
-            </Label>
-            <Select
-              value={form.category}
-              onValueChange={(v) => handleSelect("category", v)}
-              required
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((cat) => (
-                  <SelectItem key={cat.value} value={cat.value}>
-                    <span className="flex items-center gap-2">
-                      <cat.icon className="h-4 w-4" />
-                      {cat.label}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        {selectedType !== "Transfer" && (
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <Label htmlFor="category" className="mb-2 block">
+                Category
+              </Label>
+              <Select
+                value={form.category}
+                onValueChange={(v) => handleSelect("category", v)}
+                required
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.value} value={cat.value}>
+                      <span className="flex items-center gap-2">
+                        <cat.icon className="h-4 w-4" />
+                        {cat.label}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex-1">
+              <Label htmlFor="method" className="mb-2 block">
+                Method
+              </Label>
+              <Select
+                value={form.method}
+                onValueChange={(v) => handleSelect("method", v)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select method" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Cash">Cash</SelectItem>
+                  <SelectItem value="Account">Account</SelectItem>
+                  <SelectItem value="Card">Card</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div className="flex-1">
-            <Label htmlFor="method" className="mb-2 block">
-              Method
-            </Label>
-            <Select
-              value={form.method}
-              onValueChange={(v) => handleSelect("method", v)}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select method" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Cash">Cash</SelectItem>
-                <SelectItem value="Account">Account</SelectItem>
-                <SelectItem value="Card">Card</SelectItem>
-              </SelectContent>
-            </Select>
+        )}
+        {selectedType === "Transfer" && (
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <Label htmlFor="method" className="mb-2 block">
+                Method
+              </Label>
+              <Select
+                value={form.method}
+                onValueChange={(v) => handleSelect("method", v)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select method" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Cash">Cash</SelectItem>
+                  <SelectItem value="Account">Account</SelectItem>
+                  <SelectItem value="Card">Card</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-        </div>
+        )}
         {selectedType === "Transfer" && (
           <>
             <div className="flex gap-4">
