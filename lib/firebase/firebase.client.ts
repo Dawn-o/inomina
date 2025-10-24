@@ -22,6 +22,7 @@ const storage = getStorage(app);
 const transactionsCollection = collection(db, "transactions");
 const usersCollection = collection(db, "users");
 const accountsCollection = collection(db, "accounts");
+const reportsCollection = collection(db, "reports");
 
 export {
     app,
@@ -31,4 +32,5 @@ export {
     transactionsCollection,
     usersCollection,
     accountsCollection,
+    reportsCollection,
 };
