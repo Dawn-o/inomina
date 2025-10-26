@@ -1,8 +1,14 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle} from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { TransactionForm } from "@/components/transactions/TransactionForm";
 import type { TransactionType } from "@/lib/types";
+import { useEffect } from "react";
 
 interface TransactionDialogProps {
   open: boolean;
@@ -29,6 +35,13 @@ export function TransactionDialog({
   onFormSelect,
   handleAdd,
 }: TransactionDialogProps) {
+  useEffect(() => {
+    if (open && !form.date) {
+      const todayStr = new Date().toISOString().slice(0, 16);
+      setForm((prev: any) => ({ ...prev, date: todayStr }));
+    }
+  }, [open, form.date, setForm]);
+
   return (
     <Dialog
       open={open}

@@ -1,10 +1,21 @@
 import { DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Toggle } from "@/components/ui/toggle";
 import { Button } from "@/components/ui/button";
-import { categories } from "@/lib/categories";
+import { expenseCategories, incomeCategories } from "@/lib/categories";
+import { transactionSchema } from "@/lib/validation/transactionSchema";
+import { addTransaction } from "@/lib/firebase/crud/transaction";
+import { useAuth } from "@/lib/firebase/auth/AuthProvider";
+import { useState } from "react";
+
 type TransactionType = "Income" | "Expenses" | "Transfer";
 type TransferTarget = "Other" | "Yourself";
 
@@ -27,16 +38,51 @@ export function TransactionForm({
   handleAdd,
   setSelectedType,
 }: TransactionFormProps) {
-  const todayStr = new Date().toISOString().slice(0, 16);
+  const [errors, setErrors] = useState<{ [key: string]: string[] }>({});
+  const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const { user } = useAuth();
+
+  const categories =
+    selectedType === "Income"
+      ? incomeCategories
+      : selectedType === "Expenses"
+      ? expenseCategories
+      : [];
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitError(null);
+    const formData = { ...form, type: selectedType };
+
+    if (selectedType !== "Transfer") {
+      delete formData.transferTarget;
+      delete formData.hasFees;
+      delete formData.feesAmount;
+    }
+
+    if (!formData.description) delete formData.description;
+
+    const parsed = transactionSchema.safeParse(formData);
+    if (!parsed.success) {
+      setErrors(parsed.error.flatten().fieldErrors);
+      return;
+    }
+    setErrors({});
+    setLoading(true);
+    try {
+      if (!user?.uid) throw new Error("Not authenticated");
+      await addTransaction(user.uid, parsed.data);
+      handleAdd();
+    } catch (err: any) {
+      setSubmitError(err.message || "Failed to add transaction");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleAdd();
-      }}
-      className="space-y-4"
-    >
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div className="flex flex-col gap-4">
         <div>
           <Label htmlFor="date" className="mb-2 block">
@@ -46,10 +92,13 @@ export function TransactionForm({
             id="date"
             name="date"
             type="datetime-local"
-            value={form.date || todayStr}
+            value={form.date}
             onChange={handleChange}
             required
           />
+          {errors.date && (
+            <span className="text-destructive text-sm ">{errors.date[0]}</span>
+          )}
         </div>
         <div>
           <Label htmlFor="amount" className="mb-2 block">
@@ -65,6 +114,11 @@ export function TransactionForm({
             min="0"
             step="0.01"
           />
+          {errors.amount && (
+            <span className="text-destructive text-sm ">
+              {errors.amount[0]}
+            </span>
+          )}
         </div>
         {selectedType !== "Transfer" && (
           <div className="flex gap-4">
@@ -91,6 +145,11 @@ export function TransactionForm({
                   ))}
                 </SelectContent>
               </Select>
+              {errors.category && (
+                <span className="text-destructive text-sm ">
+                  {errors.category[0]}
+                </span>
+              )}
             </div>
             <div className="flex-1">
               <Label htmlFor="method" className="mb-2 block">
@@ -99,6 +158,7 @@ export function TransactionForm({
               <Select
                 value={form.method}
                 onValueChange={(v) => handleSelect("method", v)}
+                required
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select method" />
@@ -109,6 +169,11 @@ export function TransactionForm({
                   <SelectItem value="Card">Card</SelectItem>
                 </SelectContent>
               </Select>
+              {errors.method && (
+                <span className="text-destructive text-sm ">
+                  {errors.method[0]}
+                </span>
+              )}
             </div>
           </div>
         )}
@@ -121,6 +186,7 @@ export function TransactionForm({
               <Select
                 value={form.method}
                 onValueChange={(v) => handleSelect("method", v)}
+                required
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select method" />
@@ -131,6 +197,11 @@ export function TransactionForm({
                   <SelectItem value="Card">Card</SelectItem>
                 </SelectContent>
               </Select>
+              {errors.method && (
+                <span className="text-destructive text-sm ">
+                  {errors.method[0]}
+                </span>
+              )}
             </div>
           </div>
         )}
@@ -158,6 +229,11 @@ export function TransactionForm({
                     <SelectItem value="Yourself">Yourself</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.transferTarget && (
+                  <span className="text-destructive text-sm ">
+                    {errors.transferTarget[0]}
+                  </span>
+                )}
               </div>
               <div className="flex-1 mt-5">
                 <Toggle
@@ -185,6 +261,11 @@ export function TransactionForm({
                   min="0"
                   step="0.01"
                 />
+                {errors.feesAmount && (
+                  <span className="text-destructive text-sm ">
+                    {errors.feesAmount[0]}
+                  </span>
+                )}
               </div>
             )}
           </>
@@ -200,16 +281,22 @@ export function TransactionForm({
             onChange={handleChange}
             placeholder="Description"
           />
+          {errors.description && (
+            <span className="text-destructive text-sm ">
+              {errors.description[0]}
+            </span>
+          )}
         </div>
       </div>
+      {submitError && (
+        <div className="text-destructive text-sm">{submitError}</div>
+      )}
       <DialogFooter>
-        <Button type="submit">Add</Button>
+        <Button type="submit" disabled={loading}>
+          {loading ? "Saving..." : "Save"}
+        </Button>
         <DialogClose asChild>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setSelectedType(null)}
-          >
+          <Button type="button" variant="outline">
             Cancel
           </Button>
         </DialogClose>

@@ -3,8 +3,8 @@ import { TransactionDialog } from "@/components/transactions/TransactionDialog";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Repeat2, BadgeDollarSign, ReceiptText } from "lucide-react";
-import { categories } from "@/lib/categories";
+import { Repeat2, BadgeDollarSign, ReceiptText, Trash2 } from "lucide-react";
+import { expenseCategories, incomeCategories } from "@/lib/categories";
 import { TransactionType } from "@/lib/types";
 
 interface Transaction {
@@ -24,6 +24,8 @@ type DailyTransactionsProps = {
   grouped: {
     [date: string]: Transaction[];
   };
+  onUpdate: (transaction: Transaction) => void;
+  onDelete: (transactionId: number) => void;
 };
 
 function formatDateDisplay(dateStr: string) {
@@ -43,12 +45,19 @@ function formatDateDisplay(dateStr: string) {
   };
 }
 
-function getCategoryIcon(category: string | undefined) {
-  const found = categories.find((cat) => cat.value === category);
+function getCategoryIcon(category: string | undefined, type: string | undefined) {
+  let found;
+  if (type === "Income") {
+    found = incomeCategories.find((cat) => cat.value === category);
+  } else if (type === "Expenses") {
+    found = expenseCategories.find((cat) => cat.value === category);
+  } else {
+    found = undefined;
+  }
   return found ? found.icon : null;
 }
 
-export function DailyTransactions({ grouped }: DailyTransactionsProps) {
+export function DailyTransactions({ grouped, onUpdate, onDelete }: DailyTransactionsProps) {
   const [editOpen, setEditOpen] = useState(false);
   const [editForm, setEditForm] = useState<any>(null);
   const [editType, setEditType] = useState<TransactionType | null>(null);
@@ -103,7 +112,7 @@ export function DailyTransactions({ grouped }: DailyTransactionsProps) {
                       {grouped[date].map((tx: Transaction) => {
                         const Icon: React.ComponentType<{
                           className?: string;
-                        }> | null = getCategoryIcon(tx.category);
+                        }> | null = getCategoryIcon(tx.category, tx.type); // <-- pass type
                         return (
                           <TableRow key={tx.id}>
                             <TableCell className="w-1/3 text-left">
@@ -144,6 +153,14 @@ export function DailyTransactions({ grouped }: DailyTransactionsProps) {
                                 onClick={() => handleEdit(tx)}
                               >
                                 <ReceiptText className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={() => onDelete(tx.id)}
+                              >
+                                {/* Use a trash icon */}
+                                <Trash2 className="h-4 w-4 text-red-500" />
                               </Button>
                             </TableCell>
                           </TableRow>

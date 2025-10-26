@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { MonthlySummary } from "@/components/transactions/MonthlySummary";
 import { DailyTransactions } from "@/components/transactions/DailyTransactions";
@@ -13,7 +13,6 @@ import {
   getMonthlySummary,
   getAllMonthsSummary,
 } from "@/lib/transactions";
-import { initialTransactions } from "@/lib/data";
 import {
   getInitialForm,
   handleFormChange,
@@ -24,10 +23,16 @@ import { handlePrevTab, handleNextTab } from "@/lib/navigation";
 import type { Transaction, TransactionType, TransferTarget } from "@/lib/types";
 import { TransactionsHeader } from "@/components/transactions/TransactionsHeader";
 import { EmptyState } from "@/components/display/EmptyState";
+import {
+  fetchTransactions,
+  addTransaction,
+  updateTransaction,
+  deleteTransaction,
+} from "@/lib/firebase/crud/transaction";
+import { useAuth } from "@/lib/firebase/auth/AuthProvider";
 
 export default function Transactions() {
-  const [transactions, setTransactions] =
-    useState<Transaction[]>(initialTransactions);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [open, setOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<TransactionType | null>(
     null
@@ -41,6 +46,15 @@ export default function Transactions() {
   const [currentMonthlyYear, setCurrentMonthlyYear] = useState(
     today.getFullYear()
   );
+
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (!user?.uid) return;
+    fetchTransactions(user.uid).then((data) => {
+      setTransactions(data);
+    });
+  }, [user]);
 
   const filteredTransactions = transactions.filter((tx) => {
     const d = new Date(tx.date);
@@ -78,17 +92,16 @@ export default function Transactions() {
   const onFormSelect = handleFormSelect(form, setForm);
   const onTypeSelect = handleTypeSelect(form, setForm, setSelectedType);
 
-  function handleAdd() {
+  async function handleAdd() {
     if (
       !form.date ||
-      !form.description ||
       !form.amount ||
       (selectedType !== "Transfer" && !form.category)
     )
       return;
 
     let amount = Math.abs(Number(form.amount));
-    let type: TransactionType = form.type;
+    let type: TransactionType = selectedType!;
     let transferTarget: TransferTarget | undefined = undefined;
 
     if (selectedType === "Expenses") {
@@ -105,28 +118,43 @@ export default function Transactions() {
       }
     }
 
-    setTransactions([
-      {
-        id: transactions.length + 1,
-        date: form.date,
-        description: form.description,
-        category: selectedType === "Transfer" ? undefined : form.category,
-        amount,
-        method: form.method,
-        type,
-        hasFees: selectedType === "Transfer" ? form.hasFees : undefined,
-        feesAmount:
-          selectedType === "Transfer" && form.hasFees && form.feesAmount
-            ? Number(form.feesAmount)
-            : undefined,
-        transferTarget:
-          selectedType === "Transfer" ? transferTarget : undefined,
-      },
-      ...transactions,
-    ]);
+    const txData = {
+      date: form.date,
+      description: form.description,
+      category: selectedType === "Transfer" ? undefined : form.category,
+      amount,
+      method: form.method,
+      type,
+      hasFees: selectedType === "Transfer" ? form.hasFees : undefined,
+      feesAmount:
+        selectedType === "Transfer" && form.hasFees && form.feesAmount
+          ? Number(form.feesAmount)
+          : undefined,
+      transferTarget: selectedType === "Transfer" ? transferTarget : undefined,
+    };
+
+    if (!user?.uid) return;
+
+    await addTransaction(user.uid, txData);
+    const fresh = await fetchTransactions(user.uid);
+    setTransactions(fresh);
     setForm(getInitialForm());
     setSelectedType(null);
     setOpen(false);
+  }
+
+  function handleUpdate(updatedTx: Transaction) {
+    updateTransaction(updatedTx.id, updatedTx).then(() => {
+      setTransactions((prev) =>
+        prev.map((tx) => (tx.id === updatedTx.id ? updatedTx : tx))
+      );
+    });
+  }
+
+  function handleDelete(id: string) {
+    deleteTransaction(id).then(() => {
+      setTransactions((prev) => prev.filter((tx) => tx.id !== id));
+    });
   }
 
   return (
@@ -160,7 +188,11 @@ export default function Transactions() {
               description="Add a transaction to get started."
             />
           ) : (
-            <DailyTransactions grouped={grouped} />
+            <DailyTransactions
+              grouped={grouped}
+              onUpdate={handleUpdate}
+              onDelete={handleDelete}
+            />
           )}
         </TabsContent>
         <TabsContent value="calendar">
