@@ -24,18 +24,9 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
-import { logOut } from "@/lib/firebase/auth/auth.client";
-import { useRouter } from "next/navigation";
 
 export function Header() {
   const [open, setOpen] = useState(false);
-  const router = useRouter();
-
-  const handleLogout = async () => {
-    await logOut();
-    setOpen(false);
-    router.push("/signin");
-  };
 
   return (
     <header className="flex items-center justify-between p-4 border-b bg-background">
@@ -86,7 +77,7 @@ export function Header() {
               <AlertDialogCancel onClick={() => setOpen(false)}>
                 Cancel
               </AlertDialogCancel>
-              <AlertDialogAction onClick={handleLogout}>
+              <AlertDialogAction onClick={() => setOpen(false)}>
                 Log out
               </AlertDialogAction>
             </AlertDialogFooter>

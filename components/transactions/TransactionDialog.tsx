@@ -4,8 +4,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { TransactionForm } from "@/components/transactions/TransactionForm";
 import type { TransactionType } from "@/lib/types";
 import { useEffect } from "react";
@@ -54,38 +52,15 @@ export function TransactionDialog({
         <DialogHeader>
           <DialogTitle>Add Transaction</DialogTitle>
         </DialogHeader>
-        {!selectedType ? (
-          <div className="flex flex-col gap-4">
-            <Label className="mb-2">Choose Transaction Type</Label>
-            <div className="flex gap-4">
-              <Button variant="outline" onClick={() => onTypeSelect("Income")}>
-                Income
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => onTypeSelect("Expenses")}
-              >
-                Expenses
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => onTypeSelect("Transfer")}
-              >
-                Transfer
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <TransactionForm
-            form={form}
-            selectedType={selectedType}
-            handleChange={onFormChange}
-            handleSelect={onFormSelect}
-            setForm={setForm}
-            handleAdd={handleAdd}
-            setSelectedType={setSelectedType}
-          />
-        )}
+        <TransactionForm
+          form={form}
+          selectedType={selectedType}
+          handleChange={onFormChange}
+          handleSelect={onFormSelect}
+          setForm={setForm}
+          handleAdd={handleAdd}
+          setSelectedType={setSelectedType}
+        />
       </DialogContent>
     </Dialog>
   );

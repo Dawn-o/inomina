@@ -3,10 +3,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { DollarSign, TrendingUp, TrendingDown, PiggyBank } from "lucide-react";
 
 type SummaryData = {
-  balance: number;
-  income: number;
-  expenses: number;
-  savings: number;
+  balance?: number;
+  income?: number;
+  expenses?: number;
+  savings?: number;
 };
 
 export function SummaryCards({
@@ -33,6 +33,11 @@ export function SummaryCards({
     );
   }
 
+  const balance = data.balance ?? 0;
+  const income = data.income ?? 0;
+  const expenses = data.expenses ?? 0;
+  const savings = data.savings ?? 0;
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <Card className="shadow-sm hover:shadow-md transition-shadow">
@@ -44,7 +49,7 @@ export function SummaryCards({
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold">
-            ${data.balance.toLocaleString()}
+            ${balance.toLocaleString()}
           </div>
         </CardContent>
       </Card>
@@ -57,7 +62,7 @@ export function SummaryCards({
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold text-green-600">
-            ${data.income.toLocaleString()}
+            ${income.toLocaleString()}
           </div>
         </CardContent>
       </Card>
@@ -70,7 +75,7 @@ export function SummaryCards({
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold text-red-600">
-            ${data.expenses.toLocaleString()}
+            ${expenses.toLocaleString()}
           </div>
         </CardContent>
       </Card>
@@ -83,7 +88,7 @@ export function SummaryCards({
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold">
-            ${data.savings.toLocaleString()}
+            ${savings.toLocaleString()}
           </div>
         </CardContent>
       </Card>

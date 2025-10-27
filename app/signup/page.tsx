@@ -1,10 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { signUp, signInWithGoogle } from "@/lib/firebase/auth/auth.client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldDescription, FieldGroup, FieldLabel, FieldSeparator } from "@/components/ui/field";
@@ -16,32 +14,6 @@ export default function SignUpPage() {
   const [password, setPassword] = useState("");
   const [repassword, setRepassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    if (password !== repassword) {
-      setError("Passwords do not match");
-      return;
-    }
-    try {
-      await signUp(username, email, password);
-      router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
-
-  const handleGoogle = async () => {
-    setError(null);
-    try {
-      await signInWithGoogle();
-      router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
 
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
@@ -54,11 +26,17 @@ export default function SignUpPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit}>
+            <form>
               <FieldGroup>
                 <Field>
-                  <Button variant="outline" type="button" onClick={handleGoogle}>
-                    <Image src="/google.svg" alt="Google" width={20} height={20} className="mr-2" />
+                  <Button variant="outline" type="button">
+                    <Image
+                      src="/google.svg"
+                      alt="Google"
+                      width={20}
+                      height={20}
+                      className="mr-2"
+                    />
                     Continue with Google
                   </Button>
                 </Field>
@@ -98,7 +76,9 @@ export default function SignUpPage() {
                   />
                 </Field>
                 <Field>
-                  <FieldLabel htmlFor="repassword">Re-enter Password</FieldLabel>
+                  <FieldLabel htmlFor="repassword">
+                    Re-enter Password
+                  </FieldLabel>
                   <Input
                     id="repassword"
                     type="password"
@@ -108,7 +88,7 @@ export default function SignUpPage() {
                   />
                 </Field>
                 <Field>
-                  <Button type="submit">Sign Up</Button>
+                  <Button type="button">Sign Up</Button>
                   <FieldDescription className="text-center">
                     Already have an account? <Link href="/signin">Sign in</Link>
                   </FieldDescription>

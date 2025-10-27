@@ -1,7 +1,5 @@
 "use client";
 
-import { useAuth } from "@/lib/firebase/auth/AuthProvider";
-import { useDashboard } from "@/hooks/useDashboard";
 import { SummaryCards } from "@/components/dashboard/SummaryCards";
 import { SpendingByCategoryChart } from "@/components/dashboard/SpendingByCategoryChart";
 import { RecentTransactions } from "@/components/dashboard/RecentTransactions";
@@ -9,24 +7,80 @@ import { Plus, BarChart3 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-export default function Dashboard() {
-  const { user } = useAuth();
-  const { accounts, transactions, loading, summary, chartData, chartConfig } =
-    useDashboard(user?.uid);
+const summary = [
+  { label: "Balance", value: "$5,000" },
+  { label: "Income", value: "$2,000" },
+  { label: "Expenses", value: "$1,200" },
+];
 
+const chartColors = [
+  "#6366f1",
+  "#f59e42",
+  "#ef4444",
+  "#10b981",
+  "#eab308",
+  "#a21caf",
+];
+
+const chartData = [
+  { category: "Food", amount: 400, fill: chartColors[0] },
+  { category: "Transport", amount: 200, fill: chartColors[1] },
+  { category: "Shopping", amount: 300, fill: chartColors[2] },
+];
+
+const chartConfig = {};
+
+const transactions = [
+  {
+    id: "1",
+    date: "2025-10-25",
+    description: "Grocery",
+    category: "Food",
+    amount: -50,
+  },
+  {
+    id: "2",
+    date: "2025-10-20",
+    description: "Salary",
+    category: "Income",
+    amount: 2000,
+  },
+  {
+    id: "3",
+    date: "2025-10-19",
+    description: "Bus Ticket",
+    category: "Transport",
+    amount: -2.5,
+  },
+  {
+    id: "4",
+    date: "2025-10-18",
+    description: "Coffee",
+    category: "Food",
+    amount: -4,
+  },
+  {
+    id: "5",
+    date: "2025-10-17",
+    description: "Book",
+    category: "Shopping",
+    amount: -15,
+  },
+];
+
+export default function Dashboard() {
   return (
     <div className="space-y-8 p-6">
-      <SummaryCards data={summary} loading={loading} />
-
+      <SummaryCards data={summary} loading={false} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <SpendingByCategoryChart
           chartData={chartData}
           chartConfig={chartConfig}
-          loading={loading}
+          loading={false}
         />
         <RecentTransactions
           transactions={transactions.slice(0, 5)}
-          loading={loading}
+          loading={false}
         />
       </div>
 
