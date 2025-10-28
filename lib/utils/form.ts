@@ -6,25 +6,25 @@ import type {
 
 export function getInitialForm(): {
     date: string;
-    description?: string | undefined;
+    description?: string;
     category: string;
     amount: string;
     method: TransactionMethod;
     type: TransactionType;
-    hasFees?: boolean | undefined;
-    feesAmount?: string | undefined;
-    transferTarget?: TransferTarget | undefined;
+    hasFees?: boolean;
+    feesAmount?: string;
+    transferTarget?: TransferTarget;
 } {
     return {
         date: "",
-        description: undefined,
+        description: "",
         category: "",
         amount: "",
         method: "Cash",
         type: "Expenses",
-        hasFees: undefined,
-        feesAmount: undefined,
-        transferTarget: undefined,
+        hasFees: false,
+        feesAmount: "",
+        transferTarget: "",
     };
 }
 
@@ -37,22 +37,5 @@ export function handleFormChange(form: any, setForm: (f: any) => void) {
 export function handleFormSelect(form: any, setForm: (f: any) => void) {
     return (name: string, value: string) => {
         setForm({ ...form, [name]: value });
-    };
-}
-
-export function handleTypeSelect(
-    form: any,
-    setForm: (f: any) => void,
-    setSelectedType: (t: TransactionType | null) => void
-) {
-    return (type: TransactionType) => {
-        setSelectedType(type);
-        setForm({
-            ...form,
-            type,
-            transferTarget: type === "Transfer" ? "Other" : null,
-            hasFees: type === "Transfer" ? false : null,
-            feesAmount: null,
-        });
     };
 }

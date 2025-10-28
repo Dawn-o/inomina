@@ -1,4 +1,4 @@
-import type { Transaction } from "@/lib/types";
+import type { Transaction } from "@/lib/utils/types";
 
 export function groupByDate(transactions: Transaction[]) {
   return transactions.reduce<Record<string, Transaction[]>>((acc, tx) => {
