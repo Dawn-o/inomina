@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { TransactionDialog } from "@/components/transactions/TransactionDialog";
+import { TransactionForm } from "@/components/transactions/TransactionForm";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Repeat2, BadgeDollarSign, ReceiptText, Trash2 } from "lucide-react";
-import { expenseCategories, incomeCategories } from "@/lib/categories";
-import { TransactionType } from "@/lib/types";
+import { expenseCategories, incomeCategories } from "@/lib/utils/categories";
+import { TransactionType } from "@/lib/utils/types";
 
 interface Transaction {
   id: number;
@@ -59,8 +59,8 @@ function getCategoryIcon(category: string | undefined, type: string | undefined)
 
 export function DailyTransactions({ grouped, onUpdate, onDelete }: DailyTransactionsProps) {
   const [editOpen, setEditOpen] = useState(false);
-  const [editForm, setEditForm] = useState<any>(null);
   const [editType, setEditType] = useState<TransactionType | null>(null);
+  const [editForm, setEditForm] = useState<any>(null);
 
   function handleEdit(tx: Transaction) {
     setEditForm({ ...tx });
@@ -112,7 +112,7 @@ export function DailyTransactions({ grouped, onUpdate, onDelete }: DailyTransact
                       {grouped[date].map((tx: Transaction) => {
                         const Icon: React.ComponentType<{
                           className?: string;
-                        }> | null = getCategoryIcon(tx.category, tx.type); // <-- pass type
+                        }> | null = getCategoryIcon(tx.category, tx.type);
                         return (
                           <TableRow key={tx.id}>
                             <TableCell className="w-1/3 text-left">
@@ -159,7 +159,6 @@ export function DailyTransactions({ grouped, onUpdate, onDelete }: DailyTransact
                                 variant="ghost"
                                 onClick={() => onDelete(tx.id)}
                               >
-                                {/* Use a trash icon */}
                                 <Trash2 className="h-4 w-4 text-red-500" />
                               </Button>
                             </TableCell>
@@ -198,27 +197,11 @@ export function DailyTransactions({ grouped, onUpdate, onDelete }: DailyTransact
           })}
       </div>
       {editOpen && (
-        <TransactionDialog
+        <TransactionForm
           open={editOpen}
           setOpen={setEditOpen}
-          selectedType={editType}
-          setSelectedType={setEditType}
-          onTypeSelect={() => {}}
-          form={editForm}
-          setForm={setEditForm}
-          onFormChange={(e) => {
-            setEditForm((f: any) => ({
-              ...f,
-              [e.target.name]: e.target.value,
-            }));
-          }}
-          onFormSelect={(name, value) => {
-            setEditForm((f: any) => ({
-              ...f,
-              [name]: value,
-            }));
-          }}
-          handleAdd={() => {
+          defaultType={editType ?? "Expenses"}
+          onSubmit={(data) => {
             setEditOpen(false);
           }}
         />

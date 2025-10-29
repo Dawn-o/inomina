@@ -1,257 +1,360 @@
-import { DialogFooter } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Toggle } from "@/components/ui/toggle";
+"use client";
+
+import { useEffect, useTransition } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { expenseCategories, incomeCategories } from "@/lib/categories";
-import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Toggle } from "@/components/ui/toggle";
+import { expenseCategories, incomeCategories } from "@/lib/utils/categories";
+import { Field, FieldError, FieldGroup, FieldLabel, FieldDescription } from "@/components/ui/field";
+import { transactionSchema, TransactionFormValues } from "@/lib/schemas/transaction";
+import { addTransaction } from "@/app/transactions/actions";
 
 type TransactionType = "Income" | "Expenses" | "Transfer";
-type TransferTarget = "Other" | "Yourself";
 
 interface TransactionFormProps {
-  form: any;
-  selectedType: TransactionType | null;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSelect: (name: string, value: string) => void;
-  setForm: React.Dispatch<React.SetStateAction<any>>;
-  handleAdd: () => void;
-  setSelectedType: (type: TransactionType | null) => void;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  defaultType?: TransactionType;
+  onSubmit?: (data: TransactionFormValues) => void;
 }
 
 export function TransactionForm({
-  form,
-  selectedType,
-  handleChange,
-  handleSelect,
-  setForm,
-  handleAdd,
-  setSelectedType,
+  open,
+  setOpen,
+  defaultType = "Expenses",
+  onSubmit,
 }: TransactionFormProps) {
+  const [isPending, startTransition] = useTransition();
+
+  const form = useForm<TransactionFormValues>({
+    resolver: zodResolver(transactionSchema),
+    defaultValues: {
+      type: defaultType,
+      date: "",
+      amount: 0,
+      category: "",
+      method: "",
+      transferTarget: "Other",
+      hasFees: false,
+      feesAmount: 0,
+      description: "",
+    },
+    mode: "onChange",
+  });
+
+  useEffect(() => {
+    if (open) {
+      const todayStr = new Date().toISOString().slice(0, 16);
+      form.setValue("date", todayStr);
+      form.setValue("type", defaultType);
+    }
+  }, [open, defaultType, form]);
+
+  const type = form.watch("type");
+  const hasFees = form.watch("hasFees");
   const categories =
-    selectedType === "Income"
+    type === "Income"
       ? incomeCategories
-      : selectedType === "Expenses"
+      : type === "Expenses"
       ? expenseCategories
       : [];
 
   return (
-    <form
-      className="space-y-4"
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleAdd();
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        setOpen(v);
+        if (!v) form.reset();
       }}
     >
-      <div className="flex flex-col gap-2">
-        <div className="flex gap-4 mt-2">
-          <Button
-            type="button"
-            variant={selectedType === "Income" ? "default" : "outline"}
-            onClick={() => setSelectedType("Income")}
-          >
-            Income
-          </Button>
-          <Button
-            type="button"
-            variant={selectedType === "Expenses" ? "default" : "outline"}
-            onClick={() => setSelectedType("Expenses")}
-          >
-            Expenses
-          </Button>
-          <Button
-            type="button"
-            variant={selectedType === "Transfer" ? "default" : "outline"}
-            onClick={() => setSelectedType("Transfer")}
-          >
-            Transfer
-          </Button>
-        </div>
-      </div>
-      <div className="flex flex-col gap-4">
-        <div>
-          <Label htmlFor="date" className="mb-2 block">
-            Date
-          </Label>
-          <Input
-            id="date"
-            name="date"
-            type="datetime-local"
-            value={form.date}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <Label htmlFor="amount" className="mb-2 block">
-            Amount
-          </Label>
-          <Input
-            id="amount"
-            name="amount"
-            type="number"
-            value={form.amount}
-            onChange={handleChange}
-            required
-            min="0"
-            step="0.01"
-          />
-        </div>
-        {selectedType !== "Transfer" && (
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <Label htmlFor="category" className="mb-2 block">
-                Category
-              </Label>
-              <Select
-                value={form.category}
-                onValueChange={(v) => handleSelect("category", v)}
-                required
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.value} value={cat.value}>
-                      <span className="flex items-center gap-2">
-                        <cat.icon className="h-4 w-4" />
-                        {cat.label}
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex-1">
-              <Label htmlFor="method" className="mb-2 block">
-                Method
-              </Label>
-              <Select
-                value={form.method}
-                onValueChange={(v) => handleSelect("method", v)}
-                required
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select method" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Cash">Cash</SelectItem>
-                  <SelectItem value="Account">Account</SelectItem>
-                  <SelectItem value="Card">Card</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        )}
-        {selectedType === "Transfer" && (
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <Label htmlFor="method" className="mb-2 block">
-                Method
-              </Label>
-              <Select
-                value={form.method}
-                onValueChange={(v) => handleSelect("method", v)}
-                required
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select method" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Cash">Cash</SelectItem>
-                  <SelectItem value="Account">Account</SelectItem>
-                  <SelectItem value="Card">Card</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        )}
-        {selectedType === "Transfer" && (
-          <>
-            <div className="flex gap-4">
-              <div className="flex-6">
-                <Label htmlFor="transferTarget" className="mb-2 block">
-                  Transfer To
-                </Label>
-                <Select
-                  value={form.transferTarget}
-                  onValueChange={(v) =>
-                    setForm((f: any) => ({
-                      ...f,
-                      transferTarget: v as TransferTarget,
-                    }))
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select target" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Other">Other</SelectItem>
-                    <SelectItem value="Yourself">Yourself</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex-1 mt-5">
-                <Toggle
-                  pressed={form.hasFees}
-                  onPressedChange={(v) =>
-                    setForm((f: any) => ({ ...f, hasFees: v }))
-                  }
-                  aria-label="Toggle transfer fees"
-                >
-                  {form.hasFees ? "Has Fees" : "No Fees"}
-                </Toggle>
-              </div>
-            </div>
-            {form.hasFees && (
-              <div>
-                <Label htmlFor="feesAmount" className="mb-2 block">
-                  Fees Amount
-                </Label>
-                <Input
-                  id="feesAmount"
-                  name="feesAmount"
-                  type="number"
-                  value={form.feesAmount}
-                  onChange={handleChange}
-                  min="0"
-                  step="0.01"
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add Transaction</DialogTitle>
+        </DialogHeader>
+        <form
+          className="space-y-4"
+          onSubmit={form.handleSubmit((data) => {
+            startTransition(async () => {
+              await addTransaction(data);
+              onSubmit?.(data);
+              setOpen(false);
+              form.reset();
+            });
+          })}
+        >
+          <FieldGroup>
+            <Controller
+              name="type"
+              control={form.control}
+              render={({ field }) => (
+                <div className="flex gap-4 mt-2">
+                  <Button
+                    type="button"
+                    variant={field.value === "Income" ? "default" : "outline"}
+                    onClick={() => field.onChange("Income")}
+                  >
+                    Income
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={field.value === "Expenses" ? "default" : "outline"}
+                    onClick={() => field.onChange("Expenses")}
+                  >
+                    Expenses
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={field.value === "Transfer" ? "default" : "outline"}
+                    onClick={() => field.onChange("Transfer")}
+                  >
+                    Transfer
+                  </Button>
+                </div>
+              )}
+            />
+            <Controller
+              name="date"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="date">Date</FieldLabel>
+                  <Input
+                    {...field}
+                    id="date"
+                    type="datetime-local"
+                    aria-invalid={fieldState.invalid}
+                  />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+            <Controller
+              name="amount"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="amount">Amount</FieldLabel>
+                  <Input
+                    {...field}
+                    id="amount"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    aria-invalid={fieldState.invalid}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
+                  />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+            {type !== "Transfer" && (
+              <div className="flex gap-4">
+                <Controller
+                  name="category"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field className="flex-1" data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor="category">Category</FieldLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        name={field.name}
+                      >
+                        <SelectTrigger
+                          id="category"
+                          aria-invalid={fieldState.invalid}
+                        >
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((cat) => (
+                            <SelectItem key={cat.value} value={cat.value}>
+                              <span className="flex items-center gap-2">
+                                <cat.icon className="h-4 w-4" />
+                                {cat.label}
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                    </Field>
+                  )}
+                />
+                <Controller
+                  name="method"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field className="flex-1" data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor="method">Method</FieldLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        name={field.name}
+                      >
+                        <SelectTrigger
+                          id="method"
+                          aria-invalid={fieldState.invalid}
+                        >
+                          <SelectValue placeholder="Select method" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Cash">Cash</SelectItem>
+                          <SelectItem value="Account">Account</SelectItem>
+                          <SelectItem value="Card">Card</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                    </Field>
+                  )}
                 />
               </div>
             )}
-          </>
-        )}
-        <div>
-          <Label htmlFor="description" className="mb-2 block">
-            Description
-          </Label>
-          <Input
-            id="description"
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            placeholder="Description"
-          />
-        </div>
-      </div>
-      <DialogFooter>
-        <Button type="submit">Save</Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => setSelectedType(null)}
-        >
-          Cancel
-        </Button>
-      </DialogFooter>
-    </form>
+            {type === "Transfer" && (
+              <>
+                <div className="flex gap-4">
+                  <Controller
+                    name="method"
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                      <Field className="flex-1" data-invalid={fieldState.invalid}>
+                        <FieldLabel htmlFor="method">Method</FieldLabel>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          name={field.name}
+                        >
+                          <SelectTrigger
+                            id="method"
+                            aria-invalid={fieldState.invalid}
+                          >
+                            <SelectValue placeholder="Select method" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Cash">Cash</SelectItem>
+                            <SelectItem value="Account">Account</SelectItem>
+                            <SelectItem value="Card">Card</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                      </Field>
+                    )}
+                  />
+                </div>
+                <div className="flex gap-4">
+                  <Controller
+                    name="transferTarget"
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                      <Field className="flex-6" data-invalid={fieldState.invalid}>
+                        <FieldLabel htmlFor="transferTarget">
+                          Transfer To
+                        </FieldLabel>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          name={field.name}
+                        >
+                          <SelectTrigger
+                            id="transferTarget"
+                            aria-invalid={fieldState.invalid}
+                          >
+                            <SelectValue placeholder="Select target" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Other">Other</SelectItem>
+                            <SelectItem value="Yourself">Yourself</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                      </Field>
+                    )}
+                  />
+                  <Controller
+                    name="hasFees"
+                    control={form.control}
+                    render={({ field }) => (
+                      <div className="flex-1 mt-7">
+                        <Toggle
+                          pressed={field.value}
+                          onPressedChange={field.onChange}
+                          aria-label="Toggle transfer fees"
+                        >
+                          {field.value ? "Has Fees" : "No Fees"}
+                        </Toggle>
+                      </div>
+                    )}
+                  />
+                </div>
+                {hasFees && (
+                  <Controller
+                    name="feesAmount"
+                    control={form.control}
+                    render={({ field, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <FieldLabel htmlFor="feesAmount">
+                          Fees Amount
+                        </FieldLabel>
+                        <Input
+                          {...field}
+                          id="feesAmount"
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          aria-invalid={fieldState.invalid}
+                          onChange={(e) =>
+                            field.onChange(Number(e.target.value))
+                          }
+                        />
+                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                      </Field>
+                    )}
+                  />
+                )}
+              </>
+            )}
+            <Controller
+              name="description"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="description">Description</FieldLabel>
+                  <Input
+                    {...field}
+                    id="description"
+                    placeholder="Description"
+                    aria-invalid={fieldState.invalid}
+                  />
+                  <FieldDescription>
+                    Add a note or description for this transaction.
+                  </FieldDescription>
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+          </FieldGroup>
+          <DialogFooter>
+            <Button type="submit" disabled={isPending}>
+              {isPending ? "Saving..." : "Save"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setOpen(false);
+                form.reset();
+              }}
+              disabled={isPending}
+            >
+              Cancel
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

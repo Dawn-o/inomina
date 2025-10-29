@@ -6,21 +6,10 @@ import { MonthlySummary } from "@/components/transactions/MonthlySummary";
 import { DailyTransactions } from "@/components/transactions/DailyTransactions";
 import { SummaryCards } from "@/components/transactions/SummaryCards";
 import { NavigationBar } from "@/components/transactions/NavigationBar";
-import { TransactionDialog } from "@/components/transactions/TransactionDialog";
-import {
-  groupByDate,
-  getSummary,
-  getMonthlySummary,
-  getAllMonthsSummary,
-} from "@/lib/transactions";
-import {
-  getInitialForm,
-  handleFormChange,
-  handleFormSelect,
-  handleTypeSelect,
-} from "@/lib/form";
-import { handlePrevTab, handleNextTab } from "@/lib/navigation";
-import type { Transaction, TransactionType } from "@/lib/types";
+import { TransactionForm } from "@/components/transactions/TransactionForm";
+import { groupByDate, getSummary, getMonthlySummary, getAllMonthsSummary } from "@/lib/utils/transactions";
+import { handlePrevTab, handleNextTab } from "@/lib/utils/navigation";
+import type { Transaction, TransactionType } from "@/lib/utils/types";
 import { TransactionsHeader } from "@/components/transactions/TransactionsHeader";
 import { EmptyState } from "@/components/display/EmptyState";
 
@@ -57,10 +46,7 @@ const staticTransactions: Transaction[] = [
 export default function Transactions() {
   const [transactions] = useState<Transaction[]>(staticTransactions);
   const [open, setOpen] = useState(false);
-  const [selectedType, setSelectedType] = useState<TransactionType | null>(
-    null
-  );
-  const [form, setForm] = useState(getInitialForm());
+  const [selectedType, setSelectedType] = useState<TransactionType>("Expenses");
   const [tab, setTab] = useState<"daily" | "calendar" | "monthly">("daily");
 
   const today = new Date();
@@ -102,16 +88,15 @@ export default function Transactions() {
     { month: "short" }
   );
 
-  const onFormChange = handleFormChange(form, setForm);
-  const onFormSelect = handleFormSelect(form, setForm);
-  const onTypeSelect = handleTypeSelect(form, setForm, setSelectedType);
-
   return (
     <div className="p-6 space-y-6">
       <TransactionsHeader
         tab={tab}
         setTab={(v) => setTab(v as any)}
-        onAdd={() => setOpen(true)}
+        onAdd={() => {
+          setSelectedType("Expenses");
+          setOpen(true);
+        }}
       />
 
       <NavigationBar
@@ -167,17 +152,11 @@ export default function Transactions() {
         </TabsContent>
       </Tabs>
 
-      <TransactionDialog
+      <TransactionForm
         open={open}
         setOpen={setOpen}
-        selectedType={selectedType}
-        setSelectedType={setSelectedType}
-        onTypeSelect={onTypeSelect}
-        form={form}
-        setForm={setForm}
-        onFormChange={onFormChange}
-        onFormSelect={onFormSelect}
-        handleAdd={() => {
+        defaultType={selectedType}
+        onSubmit={() => {
           setOpen(false);
         }}
       />
