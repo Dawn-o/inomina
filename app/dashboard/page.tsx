@@ -7,11 +7,11 @@ import { Plus, BarChart3 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-const summary = [
-  { label: "Balance", value: "$5,000" },
-  { label: "Income", value: "$2,000" },
-  { label: "Expenses", value: "$1,200" },
-];
+const summary = {
+  balance: 5000,
+  income: 2000,
+  expenses: 1200,
+};
 
 const chartColors = [
   "#6366f1",

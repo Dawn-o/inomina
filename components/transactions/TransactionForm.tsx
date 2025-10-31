@@ -4,14 +4,46 @@ import { useEffect, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Toggle } from "@/components/ui/toggle";
 import { expenseCategories, incomeCategories } from "@/lib/utils/categories";
-import { Field, FieldError, FieldGroup, FieldLabel, FieldDescription } from "@/components/ui/field";
-import { transactionSchema, TransactionFormValues } from "@/lib/schemas/transaction";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldDescription,
+} from "@/components/ui/field";
+import {
+  transactionSchema,
+  TransactionFormValues,
+} from "@/lib/schemas/transaction";
 import { addTransaction } from "@/app/transactions/actions";
+import {
+  TrendingUp,
+  TrendingDown,
+  ArrowRightLeft,
+  Calendar,
+  DollarSign,
+  CreditCard,
+  FileText,
+} from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 type TransactionType = "Income" | "Expenses" | "Transfer";
 
@@ -60,8 +92,8 @@ export function TransactionForm({
     type === "Income"
       ? incomeCategories
       : type === "Expenses"
-      ? expenseCategories
-      : [];
+        ? expenseCategories
+        : [];
 
   return (
     <Dialog
@@ -71,12 +103,15 @@ export function TransactionForm({
         if (!v) form.reset();
       }}
     >
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add Transaction</DialogTitle>
+      <DialogContent className="sm:max-w-[500px] p-0 gap-0">
+        <DialogHeader className="px-6 py-4 border-b">
+          <DialogTitle className="flex items-center gap-2 text-xl">
+            <FileText className="h-5 w-5" />
+            Add Transaction
+          </DialogTitle>
         </DialogHeader>
         <form
-          className="space-y-4"
+          className="space-y-6"
           onSubmit={form.handleSubmit((data) => {
             startTransition(async () => {
               await addTransaction(data);
@@ -86,49 +121,69 @@ export function TransactionForm({
             });
           })}
         >
-          <FieldGroup>
-            <Controller
-              name="type"
-              control={form.control}
-              render={({ field }) => (
-                <div className="flex gap-4 mt-2">
-                  <Button
-                    type="button"
-                    variant={field.value === "Income" ? "default" : "outline"}
-                    onClick={() => field.onChange("Income")}
-                  >
-                    Income
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={field.value === "Expenses" ? "default" : "outline"}
-                    onClick={() => field.onChange("Expenses")}
-                  >
-                    Expenses
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={field.value === "Transfer" ? "default" : "outline"}
-                    onClick={() => field.onChange("Transfer")}
-                  >
-                    Transfer
-                  </Button>
-                </div>
-              )}
-            />
+          <div className="px-6 py-4 space-y-6">
+            <div className="space-y-3">
+              <Controller
+                name="type"
+                control={form.control}
+                render={({ field }) => (
+                  <div className="grid grid-cols-3 gap-3">
+                    <Button
+                      type="button"
+                      variant={field.value === "Income" ? "default" : "outline"}
+                      onClick={() => field.onChange("Income")}
+                      className="h-12 flex flex-col gap-1 transition-all duration-200"
+                    >
+                      <TrendingUp className="h-4 w-4" />
+                      <span className="text-xs">Income</span>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={
+                        field.value === "Expenses" ? "default" : "outline"
+                      }
+                      onClick={() => field.onChange("Expenses")}
+                      className="h-12 flex flex-col gap-1 transition-all duration-200"
+                    >
+                      <TrendingDown className="h-4 w-4" />
+                      <span className="text-xs">Expenses</span>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={
+                        field.value === "Transfer" ? "default" : "outline"
+                      }
+                      onClick={() => field.onChange("Transfer")}
+                      className="h-12 flex flex-col gap-1 transition-all duration-200"
+                    >
+                      <ArrowRightLeft className="h-4 w-4" />
+                      <span className="text-xs">Transfer</span>
+                    </Button>
+                  </div>
+                )}
+              />
+            </div>
+
+            <Separator />
             <Controller
               name="date"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="date">Date</FieldLabel>
+                  <FieldLabel className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    Date
+                  </FieldLabel>
                   <Input
                     {...field}
                     id="date"
                     type="datetime-local"
+                    className="h-10"
                     aria-invalid={fieldState.invalid}
                   />
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
                 </Field>
               )}
             />
@@ -137,35 +192,42 @@ export function TransactionForm({
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="amount">Amount</FieldLabel>
+                  <FieldLabel className="flex items-center gap-2">
+                    <DollarSign className="h-4 w-4" />
+                    Amount
+                  </FieldLabel>
                   <Input
                     {...field}
                     id="amount"
                     type="number"
                     min="0"
                     step="0.01"
+                    className="h-10"
+                    placeholder="0.00"
                     aria-invalid={fieldState.invalid}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                   />
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
                 </Field>
               )}
             />
             {type !== "Transfer" && (
-              <div className="flex gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <Controller
                   name="category"
                   control={form.control}
                   render={({ field, fieldState }) => (
-                    <Field className="flex-1" data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor="category">Category</FieldLabel>
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel>Category</FieldLabel>
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
                         name={field.name}
                       >
                         <SelectTrigger
-                          id="category"
+                          className="h-10"
                           aria-invalid={fieldState.invalid}
                         >
                           <SelectValue placeholder="Select category" />
@@ -181,7 +243,9 @@ export function TransactionForm({
                           ))}
                         </SelectContent>
                       </Select>
-                      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
                     </Field>
                   )}
                 />
@@ -189,158 +253,172 @@ export function TransactionForm({
                   name="method"
                   control={form.control}
                   render={({ field, fieldState }) => (
-                    <Field className="flex-1" data-invalid={fieldState.invalid}>
-                      <FieldLabel htmlFor="method">Method</FieldLabel>
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel className="flex items-center gap-2">
+                        <CreditCard className="h-4 w-4" />
+                        Method
+                      </FieldLabel>
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
                         name={field.name}
                       >
                         <SelectTrigger
-                          id="method"
+                          className="h-10"
                           aria-invalid={fieldState.invalid}
                         >
                           <SelectValue placeholder="Select method" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Cash">Cash</SelectItem>
-                          <SelectItem value="Account">Account</SelectItem>
-                          <SelectItem value="Card">Card</SelectItem>
+                          <SelectItem value="Cash">💵 Cash</SelectItem>
+                          <SelectItem value="Account">🏦 Account</SelectItem>
+                          <SelectItem value="Card">💳 Card</SelectItem>
                         </SelectContent>
                       </Select>
-                      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
                     </Field>
                   )}
                 />
               </div>
             )}
             {type === "Transfer" && (
-              <>
-                <div className="flex gap-4">
-                  <Controller
-                    name="method"
-                    control={form.control}
-                    render={({ field, fieldState }) => (
-                      <Field className="flex-1" data-invalid={fieldState.invalid}>
-                        <FieldLabel htmlFor="method">Method</FieldLabel>
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                          name={field.name}
+              <div className="space-y-4">
+                <Controller
+                  name="method"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel className="flex items-center gap-2">
+                        <CreditCard className="h-4 w-4" />
+                        Method
+                      </FieldLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        name={field.name}
+                      >
+                        <SelectTrigger
+                          className="h-10"
+                          aria-invalid={fieldState.invalid}
                         >
-                          <SelectTrigger
-                            id="method"
-                            aria-invalid={fieldState.invalid}
+                          <SelectValue placeholder="Select method" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Cash">💵 Cash</SelectItem>
+                          <SelectItem value="Account">🏦 Account</SelectItem>
+                          <SelectItem value="Card">💳 Card</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
+
+                <div className="grid grid-cols-5 gap-4">
+                  <div className="col-span-4">
+                    <Controller
+                      name="transferTarget"
+                      control={form.control}
+                      render={({ field, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid}>
+                          <FieldLabel>Transfer To</FieldLabel>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            name={field.name}
                           >
-                            <SelectValue placeholder="Select method" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Cash">Cash</SelectItem>
-                            <SelectItem value="Account">Account</SelectItem>
-                            <SelectItem value="Card">Card</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                      </Field>
-                    )}
-                  />
-                </div>
-                <div className="flex gap-4">
-                  <Controller
-                    name="transferTarget"
-                    control={form.control}
-                    render={({ field, fieldState }) => (
-                      <Field className="flex-6" data-invalid={fieldState.invalid}>
-                        <FieldLabel htmlFor="transferTarget">
-                          Transfer To
-                        </FieldLabel>
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                          name={field.name}
-                        >
-                          <SelectTrigger
-                            id="transferTarget"
-                            aria-invalid={fieldState.invalid}
-                          >
-                            <SelectValue placeholder="Select target" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Other">Other</SelectItem>
-                            <SelectItem value="Yourself">Yourself</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                      </Field>
-                    )}
-                  />
+                            <SelectTrigger
+                              className="h-10"
+                              aria-invalid={fieldState.invalid}
+                            >
+                              <SelectValue placeholder="Select target" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Other">Other</SelectItem>
+                              <SelectItem value="Yourself">Yourself</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          {fieldState.invalid && (
+                            <FieldError errors={[fieldState.error]} />
+                          )}
+                        </Field>
+                      )}
+                    />
+                  </div>
                   <Controller
                     name="hasFees"
                     control={form.control}
                     render={({ field }) => (
-                      <div className="flex-1 mt-7">
+                      <Field>
+                        <FieldLabel>Fees</FieldLabel>
                         <Toggle
                           pressed={field.value}
                           onPressedChange={field.onChange}
+                          className="h-10 w-full justify-start"
                           aria-label="Toggle transfer fees"
                         >
                           {field.value ? "Has Fees" : "No Fees"}
                         </Toggle>
-                      </div>
+                      </Field>
                     )}
                   />
                 </div>
+
                 {hasFees && (
                   <Controller
                     name="feesAmount"
                     control={form.control}
                     render={({ field, fieldState }) => (
                       <Field data-invalid={fieldState.invalid}>
-                        <FieldLabel htmlFor="feesAmount">
-                          Fees Amount
-                        </FieldLabel>
+                        <FieldLabel>Fees Amount</FieldLabel>
                         <Input
                           {...field}
                           id="feesAmount"
                           type="number"
                           min="0"
                           step="0.01"
+                          className="h-10"
+                          placeholder="0.00"
                           aria-invalid={fieldState.invalid}
                           onChange={(e) =>
                             field.onChange(Number(e.target.value))
                           }
                         />
-                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
                       </Field>
                     )}
                   />
                 )}
-              </>
+              </div>
             )}
             <Controller
               name="description"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="description">Description</FieldLabel>
+                  <FieldLabel>Description</FieldLabel>
                   <Input
                     {...field}
                     id="description"
-                    placeholder="Description"
+                    placeholder="Add a note or description..."
+                    className="h-10"
                     aria-invalid={fieldState.invalid}
                   />
-                  <FieldDescription>
-                    Add a note or description for this transaction.
-                  </FieldDescription>
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
                 </Field>
               )}
             />
-          </FieldGroup>
-          <DialogFooter>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? "Saving..." : "Save"}
-            </Button>
+          </div>
+
+          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t bg-muted/30">
             <Button
               type="button"
               variant="outline"
@@ -349,10 +427,18 @@ export function TransactionForm({
                 form.reset();
               }}
               disabled={isPending}
+              className="h-9"
             >
               Cancel
             </Button>
-          </DialogFooter>
+            <Button
+              type="submit"
+              disabled={isPending}
+              className="h-9 min-w-[80px]"
+            >
+              {isPending ? "Saving..." : "Save"}
+            </Button>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

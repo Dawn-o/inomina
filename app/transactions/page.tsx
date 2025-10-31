@@ -7,7 +7,13 @@ import { DailyTransactions } from "@/components/transactions/DailyTransactions";
 import { SummaryCards } from "@/components/transactions/SummaryCards";
 import { NavigationBar } from "@/components/transactions/NavigationBar";
 import { TransactionForm } from "@/components/transactions/TransactionForm";
-import { groupByDate, getSummary, getMonthlySummary, getAllMonthsSummary } from "@/lib/utils/transactions";
+import { CalendarView } from "@/components/transactions/CalendarView";
+import {
+  groupByDate,
+  getSummary,
+  getMonthlySummary,
+  getAllMonthsSummary,
+} from "@/lib/utils/transactions";
 import { handlePrevTab, handleNextTab } from "@/lib/utils/navigation";
 import type { Transaction, TransactionType } from "@/lib/utils/types";
 import { TransactionsHeader } from "@/components/transactions/TransactionsHeader";
@@ -15,7 +21,7 @@ import { EmptyState } from "@/components/display/EmptyState";
 
 const staticTransactions: Transaction[] = [
   {
-    id: "1",
+    id: 1,
     date: "2025-10-25",
     description: "Grocery",
     category: "Food",
@@ -24,16 +30,16 @@ const staticTransactions: Transaction[] = [
     type: "Expenses",
   },
   {
-    id: "2",
+    id: 2,
     date: "2025-10-20",
     description: "Salary",
     category: "Income",
     amount: 2000,
-    method: "Bank",
+    method: "Account",
     type: "Income",
   },
   {
-    id: "3",
+    id: 3,
     date: "2025-10-19",
     description: "Bus Ticket",
     category: "Transport",
@@ -53,7 +59,7 @@ export default function Transactions() {
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonthlyYear, setCurrentMonthlyYear] = useState(
-    today.getFullYear()
+    today.getFullYear(),
   );
 
   const filteredTransactions = transactions.filter((tx) => {
@@ -72,7 +78,7 @@ export default function Transactions() {
       currentMonth,
       setCurrentMonth,
       setCurrentYear,
-      setCurrentMonthlyYear
+      setCurrentMonthlyYear,
     );
   const handleNext = () =>
     handleNextTab(
@@ -80,12 +86,12 @@ export default function Transactions() {
       currentMonth,
       setCurrentMonth,
       setCurrentYear,
-      setCurrentMonthlyYear
+      setCurrentMonthlyYear,
     );
 
   const monthName = new Date(currentYear, currentMonth).toLocaleString(
     "en-US",
-    { month: "short" }
+    { month: "short" },
   );
 
   return (
@@ -130,14 +136,15 @@ export default function Transactions() {
           )}
         </TabsContent>
         <TabsContent value="calendar">
-          <EmptyState
-            title="Calendar view coming soon"
-            description="This feature will be available in a future update."
+          <CalendarView
+            transactions={filteredTransactions}
+            currentMonth={currentMonth}
+            currentYear={currentYear}
           />
         </TabsContent>
         <TabsContent value="monthly">
           {Object.values(
-            getAllMonthsSummary(monthly, currentMonthlyYear)
+            getAllMonthsSummary(monthly, currentMonthlyYear),
           ).every((m) => m.income === 0 && m.expenses === 0) ? (
             <EmptyState
               title="No monthly data found"
