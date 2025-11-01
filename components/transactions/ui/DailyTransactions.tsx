@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TransactionForm } from "@/components/transactions/TransactionForm";
+import { TransactionForm } from "@/components/transactions/ui/TransactionForm";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,27 +7,15 @@ import { Separator } from "@/components/ui/separator";
 import {
   Repeat2,
   BadgeDollarSign,
-  Edit,
-  Trash2,
   Calendar,
   CreditCard,
   Banknote,
+  List,
+  Grid,
+  ReceiptText,
 } from "lucide-react";
 import { expenseCategories, incomeCategories } from "@/lib/utils/categories";
-import { TransactionType } from "@/lib/utils/types";
-
-interface Transaction {
-  id: number;
-  date: string;
-  description: string;
-  category?: string;
-  amount: number;
-  method: string;
-  type: string;
-  hasFees?: boolean;
-  feesAmount?: number;
-  transferTarget?: string;
-}
+import type { Transaction, TransactionType } from "@/lib/utils/types";
 
 type DailyTransactionsProps = {
   grouped: {
@@ -76,12 +64,23 @@ export function DailyTransactions({
 }: DailyTransactionsProps) {
   const [editOpen, setEditOpen] = useState(false);
   const [editType, setEditType] = useState<TransactionType | null>(null);
-  const [editForm, setEditForm] = useState<any>(null);
+  const [editTransaction, setEditTransaction] = useState<Transaction | null>(
+    null,
+  );
+  const [viewMode, setViewMode] = useState<"list" | "cards">("cards");
 
   function handleEdit(tx: Transaction) {
-    setEditForm({ ...tx });
+    setEditTransaction(tx);
     setEditType(tx.type as TransactionType);
     setEditOpen(true);
+  }
+
+  function handleDelete() {
+    if (editTransaction) {
+      onDelete(editTransaction.id);
+      setEditOpen(false);
+      setEditTransaction(null);
+    }
   }
 
   const getMethodIcon = (method: string) => {
@@ -97,7 +96,34 @@ export function DailyTransactions({
 
   return (
     <>
-      <div className="space-y-8">
+      <div className="flex justify-end items-center mb-4">
+        <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+          <Button
+            variant={viewMode === "list" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setViewMode("list")}
+            className="h-8 w-8 p-0"
+          >
+            <List className="h-4 w-4" />
+          </Button>
+          <Button
+            variant={viewMode === "cards" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setViewMode("cards")}
+            className="h-8 w-8 p-0"
+          >
+            <Grid className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      <div
+        className={
+          viewMode === "cards"
+            ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+            : "space-y-8"
+        }
+      >
         {Object.keys(grouped)
           .sort((a, b) => (a < b ? 1 : -1))
           .map((date) => {
@@ -214,30 +240,23 @@ export function DailyTransactions({
                                 : "-"}
                             ${Math.abs(tx.amount).toLocaleString()}
                           </div>
-                          <div className="flex gap-1">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-8 w-8 p-0 hover:bg-muted"
-                              onClick={() => handleEdit(tx)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
-                              onClick={() => onDelete(tx.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
+                          <Separator
+                            orientation="vertical"
+                            className="ml-2 data-[orientation=vertical]:h-4"
+                          />
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 w-8 p-0 hover:bg-muted"
+                            onClick={() => handleEdit(tx)}
+                          >
+                            <ReceiptText className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
                     );
                   })}
 
-                  {/* Transfer fees */}
                   {dayTransactions
                     .filter(
                       (tx: Transaction) =>
@@ -283,11 +302,17 @@ export function DailyTransactions({
       {editOpen && (
         <TransactionForm
           open={editOpen}
-          setOpen={setEditOpen}
+          setOpen={(open) => {
+            setEditOpen(open);
+            if (!open) setEditTransaction(null);
+          }}
           defaultType={editType ?? "Expenses"}
+          editTransaction={editTransaction || undefined}
           onSubmit={(data) => {
             setEditOpen(false);
+            setEditTransaction(null);
           }}
+          onDelete={editTransaction ? handleDelete : undefined}
         />
       )}
     </>

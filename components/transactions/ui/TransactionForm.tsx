@@ -9,7 +9,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
@@ -21,13 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Toggle } from "@/components/ui/toggle";
 import { expenseCategories, incomeCategories } from "@/lib/utils/categories";
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-  FieldDescription,
-} from "@/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import {
   transactionSchema,
   TransactionFormValues,
@@ -41,26 +34,44 @@ import {
   DollarSign,
   CreditCard,
   FileText,
+  Trash2,
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
 type TransactionType = "Income" | "Expenses" | "Transfer";
+
+interface Transaction {
+  id: number;
+  date: string;
+  description: string;
+  category?: string;
+  amount: number;
+  method: string;
+  type: string;
+  hasFees?: boolean;
+  feesAmount?: number;
+  transferTarget?: string;
+}
 
 interface TransactionFormProps {
   open: boolean;
   setOpen: (open: boolean) => void;
   defaultType?: TransactionType;
+  editTransaction?: Transaction;
   onSubmit?: (data: TransactionFormValues) => void;
+  onDelete?: () => void;
 }
 
 export function TransactionForm({
   open,
   setOpen,
   defaultType = "Expenses",
+  editTransaction,
   onSubmit,
+  onDelete,
 }: TransactionFormProps) {
   const [isPending, startTransition] = useTransition();
+  const isEditing = !!editTransaction;
 
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema),
@@ -80,11 +91,25 @@ export function TransactionForm({
 
   useEffect(() => {
     if (open) {
-      const todayStr = new Date().toISOString().slice(0, 16);
-      form.setValue("date", todayStr);
-      form.setValue("type", defaultType);
+      if (isEditing && editTransaction) {
+        form.reset({
+          type: editTransaction.type as TransactionType,
+          date: new Date(editTransaction.date).toISOString().slice(0, 16),
+          amount: Math.abs(editTransaction.amount),
+          category: editTransaction.category || "",
+          method: editTransaction.method,
+          transferTarget: editTransaction.transferTarget || "Other",
+          hasFees: editTransaction.hasFees || false,
+          feesAmount: editTransaction.feesAmount || 0,
+          description: editTransaction.description,
+        });
+      } else {
+        const todayStr = new Date().toISOString().slice(0, 16);
+        form.setValue("date", todayStr);
+        form.setValue("type", defaultType);
+      }
     }
-  }, [open, defaultType, form]);
+  }, [open, defaultType, editTransaction, isEditing, form]);
 
   const type = form.watch("type");
   const hasFees = form.watch("hasFees");
@@ -107,7 +132,7 @@ export function TransactionForm({
         <DialogHeader className="px-6 py-4 border-b">
           <DialogTitle className="flex items-center gap-2 text-xl">
             <FileText className="h-5 w-5" />
-            Add Transaction
+            {isEditing ? "Edit Transaction" : "Add Transaction"}
           </DialogTitle>
         </DialogHeader>
         <form
@@ -418,26 +443,39 @@ export function TransactionForm({
             />
           </div>
 
-          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t bg-muted/30">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                setOpen(false);
-                form.reset();
-              }}
-              disabled={isPending}
-              className="h-9"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={isPending}
-              className="h-9 min-w-[80px]"
-            >
-              {isPending ? "Saving..." : "Save"}
-            </Button>
+          <div className="flex items-center justify-between gap-3 p-4 border-t bg-muted/30">
+            {isEditing && onDelete && (
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                onClick={onDelete}
+                className="h-9"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+            <div className="flex items-center gap-3 ml-auto">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setOpen(false);
+                  form.reset();
+                }}
+                disabled={isPending}
+                className="h-9"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isPending}
+                className="h-9 min-w-[80px]"
+              >
+                {isPending ? "Saving..." : isEditing ? "Update" : "Save"}
+              </Button>
+            </div>
           </div>
         </form>
       </DialogContent>

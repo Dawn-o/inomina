@@ -12,38 +12,38 @@ export function SummaryCards({ income, expenses, total }: SummaryCardsProps) {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      <Card className="shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.02]">
-        <CardHeader className="pb-3">
+      <Card className="shadow-sm hover:shadow-md">
+        <CardHeader className="pb-1">
           <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
             <TrendingUp className="h-4 w-4 mr-2 text-green-600" />
             Income
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold text-green-600">
+          <div className="text-2xl font-bold text-green-600">
             ${income.toLocaleString()}
           </div>
           <p className="text-xs text-muted-foreground mt-1">Total earnings</p>
         </CardContent>
       </Card>
 
-      <Card className="shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.02]">
-        <CardHeader className="pb-3">
+      <Card className="shadow-sm hover:shadow-md">
+        <CardHeader className="pb-1">
           <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
             <TrendingDown className="h-4 w-4 mr-2 text-red-600" />
             Expenses
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold text-red-600">
+          <div className="text-2xl font-bold text-red-600">
             ${expenses.toLocaleString()}
           </div>
           <p className="text-xs text-muted-foreground mt-1">Total spending</p>
         </CardContent>
       </Card>
 
-      <Card className="shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.02]">
-        <CardHeader className="pb-3">
+      <Card className="shadow-sm hover:shadow-md">
+        <CardHeader className="pb-1">
           <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
             <DollarSign
               className={`h-4 w-4 mr-2 ${total >= 0 ? "text-green-600" : "text-red-600"}`}
@@ -53,7 +53,7 @@ export function SummaryCards({ income, expenses, total }: SummaryCardsProps) {
         </CardHeader>
         <CardContent>
           <div
-            className={`text-3xl font-bold ${total >= 0 ? "text-green-600" : "text-red-600"}`}
+            className={`text-2xl font-bold ${total >= 0 ? "text-green-600" : "text-red-600"}`}
           >
             {total >= 0 ? "+" : ""}${total.toLocaleString()}
           </div>
@@ -63,15 +63,15 @@ export function SummaryCards({ income, expenses, total }: SummaryCardsProps) {
         </CardContent>
       </Card>
 
-      <Card className="shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.02]">
-        <CardHeader className="pb-3">
+      <Card className="shadow-sm hover:shadow-md">
+        <CardHeader className="pb-1">
           <CardTitle className="text-sm font-medium text-muted-foreground flex items-center">
             <Target className="h-4 w-4 mr-2" />
             Savings Rate
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold">{savingsRate.toFixed(0)}%</div>
+          <div className="text-2xl font-bold">{savingsRate.toFixed(0)}%</div>
           <p className="text-xs text-muted-foreground mt-1">Of income saved</p>
         </CardContent>
       </Card>

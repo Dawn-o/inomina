@@ -1,5 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { Plus, BarChart3, Calendar, TrendingUp, Receipt } from "lucide-react";
+import {
+  Plus,
+  BarChart3,
+  Calendar,
+  TrendingUp,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 
@@ -7,15 +14,55 @@ interface TransactionsHeaderProps {
   tab: "daily" | "calendar" | "monthly";
   setTab: (tab: "daily" | "calendar" | "monthly") => void;
   onAdd: () => void;
+  monthName?: string;
+  currentYear?: number;
+  currentMonthlyYear?: number;
+  onPrev?: () => void;
+  onNext?: () => void;
 }
 
 export function TransactionsHeader({
   tab,
   setTab,
   onAdd,
+  monthName,
+  currentYear,
+  currentMonthlyYear,
+  onPrev,
+  onNext,
 }: TransactionsHeaderProps) {
+  const isMonthlyView = tab === "monthly";
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
+      {(onPrev || onNext) && (
+        <div className="flex items-center justify-left gap-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onPrev}
+            className="h-8 w-8 p-0 hover:bg-muted transition-colors"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+
+          <div className="text-xs uppercase tracking-wider font-semibold px-4 py-2 bg-muted rounded-md">
+            {isMonthlyView
+              ? currentMonthlyYear
+              : `${monthName} ${currentYear}`}{" "}
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onNext}
+            className="h-8 w-8 p-0 hover:bg-muted transition-colors"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <Tabs
           value={tab}

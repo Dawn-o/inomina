@@ -20,10 +20,7 @@ export function MonthlySummary({ months, year }: MonthlySummaryProps) {
           const hasData = income > 0 || expenses > 0;
 
           return (
-            <Card
-              key={monthName}
-              className="shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.02]"
-            >
+            <Card key={monthName} className="shadow-sm hover:shadow-md">
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg font-semibold flex items-center gap-2">
                   <Calendar className="h-5 w-5 text-muted-foreground" />

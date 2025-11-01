@@ -14,3 +14,32 @@ export interface Transaction {
   feesAmount?: number;
   transferTarget?: TransferTarget;
 }
+
+// Reports Types
+export interface SummaryStat {
+  title: string;
+  value: string;
+  change: string;
+  changeType: "positive" | "negative";
+  icon: React.ComponentType<{ className?: string }>;
+  description: string;
+}
+
+export interface MonthlyData {
+  month: string;
+  income: number;
+  expenses: number;
+  savings: number;
+}
+
+export interface CategoryData {
+  name: string;
+  value: number;
+  color: string;
+}
+
+export interface TrendData {
+  date: string;
+  income: number;
+  expenses: number;
+}

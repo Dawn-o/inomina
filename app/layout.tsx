@@ -2,9 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
-import { Header } from "@/components/Header";
-import { Sidebars } from "@/components/Sidebar";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,15 +24,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SidebarProvider>
-            <Sidebars />
-            <SidebarInset>
-              <div className="flex flex-col h-full">
-                <Header />
-                <main className="flex-1 p-4 overflow-auto">{children}</main>
-              </div>
-            </SidebarInset>
-          </SidebarProvider>
+          <main>{children}</main>
         </ThemeProvider>
       </body>
     </html>
