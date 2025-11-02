@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { createClient } from "@/lib/supabase/middleware";
 
 const PUBLIC_ROUTES = ["/", "/home", "/signin", "/signup"];
 const PROTECTED_ROUTES = [
@@ -9,22 +10,27 @@ const PROTECTED_ROUTES = [
   "/settings",
 ];
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get("firebase_token")?.value;
+  const { supabase, supabaseResponse } = await createClient(request);
+
+  // Refresh session if expired - required for Server Components
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   // If authenticated and on a public route, redirect to dashboard
-  if (token && PUBLIC_ROUTES.includes(pathname)) {
+  if (user && PUBLIC_ROUTES.includes(pathname)) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   // If NOT authenticated and on a protected route, redirect to home
-  if (!token && PROTECTED_ROUTES.some((route) => pathname.startsWith(route))) {
+  if (!user && PROTECTED_ROUTES.some((route) => pathname.startsWith(route))) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
   // Otherwise, continue
-  return NextResponse.next();
+  return supabaseResponse;
 }
 
 export const config = {
@@ -33,6 +39,7 @@ export const config = {
     "/home",
     "/signin",
     "/signup",
+    "/auth/callback",
     "/dashboard",
     "/transactions",
     "/reports",
