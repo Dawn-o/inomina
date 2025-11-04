@@ -20,22 +20,22 @@ export function Footer() {
 
           <div className="flex gap-8">
             <Link
+              href="#how-it-works"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Getting Started
+            </Link>
+            <Link
               href="#features"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Features
             </Link>
             <Link
-              href="#solutions"
+              href="#privacy"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              Solutions
-            </Link>
-            <Link
-              href="#security"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Security
+              Privacy
             </Link>
           </div>
         </div>
