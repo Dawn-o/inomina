@@ -6,8 +6,9 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Inomina",
-  description: "Money Management App",
+  title: "Inomina: Better Finances",
+  description:
+    "Take control of your personal finances with Inomina. Track expenses, manage transactions, view detailed reports, and gain insights to make smarter financial decisions. Secure, fast, and mobile-ready.",
 };
 
 export default function RootLayout({
