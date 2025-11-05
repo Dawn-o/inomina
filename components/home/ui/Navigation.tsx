@@ -7,7 +7,7 @@ export function Navigation() {
   return (
     <nav className="sticky top-0 left-0 right-0 z-50 bg-background">
       <div className="container mx-auto flex h-16 items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/home" className="flex items-center gap-2">
           <Logo />
           <div className="grid flex-1 text-left text-sm leading-tight">
             <span className="text-sm uppercase font-bold tracking-wider text-accent-foreground">

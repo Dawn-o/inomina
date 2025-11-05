@@ -62,7 +62,7 @@ export function FeaturesSection() {
             <div className="col-start-2 col-end-12 row-start-2 row-end-4 border border-border aspect-auto">
               <section className="text-center flex items-center justify-center h-full">
                 <div className="flex flex-col sm:flex-row items-center justify-center text-center">
-                  <h2 className="text-3xl md:text-4xl font-bold leading-tight">
+                  <h2 className="text-xl md:text-3xl lg:text-4xl font-bold leading-tight">
                     Empowering You to Master Your Finances
                   </h2>
                 </div>

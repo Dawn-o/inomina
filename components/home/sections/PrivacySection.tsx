@@ -24,9 +24,9 @@ const privacy = [
 export function PrivacySection() {
   return (
     <section id="privacy" className="relative mt-6 border border-border">
-      <div className="absolute top-0 left-0 right-0 flex justify-center z-10">
-        <h2 className="mt-8 md:mt-[5.5rem] text-center bg-background px-6 text-2xl md:text-3xl lg:text-4xl font-bold">
-          Protecting Your Data Security and Privacy
+      <div className="absolute top-1 left-0 right-0 inline-flex justify-center items-center z-10">
+        <h2 className="mt-8 md:mt-[5.5rem] text-center bg-background text-xl md:text-3xl lg:text-4xl font-bold leading-tight">
+          Secure Data & Privacy
         </h2>
       </div>
 
