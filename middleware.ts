@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/middleware";
 
-const PUBLIC_ROUTES = ["/", "/home", "/signin", "/signup"];
+const PUBLIC_ROUTES = ["/", "/signin", "/signup"];
 const PROTECTED_ROUTES = [
   "/dashboard",
   "/transactions",
@@ -36,7 +36,6 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/",
-    "/home",
     "/signin",
     "/signup",
     "/auth/callback",
