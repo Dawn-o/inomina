@@ -18,7 +18,7 @@ export function AppHeader() {
     <SidebarMenu>
       <SidebarMenuItem>
         <SidebarMenuButton size="lg" asChild>
-          <Link href="/">
+          <Link href="/home">
             <Logo />
             {state === "expanded" && (
               <div className="grid flex-1 text-left text-sm leading-tight">

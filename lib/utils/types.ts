@@ -15,7 +15,6 @@ export interface Transaction {
   transferTarget?: TransferTarget;
 }
 
-// Reports Types
 export interface SummaryStat {
   title: string;
   value: string;

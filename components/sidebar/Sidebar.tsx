@@ -6,6 +6,7 @@ import { BookText, LayoutDashboard, PieChart } from "lucide-react";
 import { AppHeader } from "@/components/sidebar/AppHeader";
 import { NavBar } from "@/components/sidebar/NavBar";
 import { NavUser } from "@/components/sidebar/NavUser";
+import { SidebarSkeleton } from "@/components/sidebar/SidebarSkeleton";
 import {
   Sidebar,
   SidebarContent,
@@ -40,15 +41,15 @@ export function Sidebars({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, loading, error } = useUser();
 
   if (loading) {
-    return <div>Loading...</div>; // Or a proper loading component
+    return <SidebarSkeleton />;
   }
 
   if (error) {
-    return <div>Error: {error}</div>; // Display error message
+    return <div>Error: {error}</div>;
   }
 
   if (!user) {
-    return null; // Or redirect, but since middleware handles it, maybe not needed
+    return null;
   }
 
   const userData = {

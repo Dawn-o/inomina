@@ -89,6 +89,13 @@ export function TransactionForm({
     mode: "onChange",
   });
 
+  const watchedType = form.watch("type");
+  useEffect(() => {
+    if (watchedType === "Transfer") {
+      form.setValue("category", "");
+    }
+  }, [watchedType, form]);
+
   useEffect(() => {
     if (open) {
       if (isEditing && editTransaction) {
@@ -156,7 +163,10 @@ export function TransactionForm({
                     <Button
                       type="button"
                       variant={field.value === "Income" ? "default" : "outline"}
-                      onClick={() => field.onChange("Income")}
+                      onClick={() => {
+                        field.onChange("Income");
+                        form.clearErrors("category");
+                      }}
                       className="h-12 flex flex-col gap-1 transition-all duration-200"
                     >
                       <TrendingUp className="h-4 w-4" />
@@ -167,7 +177,10 @@ export function TransactionForm({
                       variant={
                         field.value === "Expenses" ? "default" : "outline"
                       }
-                      onClick={() => field.onChange("Expenses")}
+                      onClick={() => {
+                        field.onChange("Expenses");
+                        form.clearErrors("category");
+                      }}
                       className="h-12 flex flex-col gap-1 transition-all duration-200"
                     >
                       <TrendingDown className="h-4 w-4" />
@@ -178,7 +191,11 @@ export function TransactionForm({
                       variant={
                         field.value === "Transfer" ? "default" : "outline"
                       }
-                      onClick={() => field.onChange("Transfer")}
+                      onClick={() => {
+                        field.onChange("Transfer");
+                        form.setValue("category", "");
+                        form.clearErrors("category");
+                      }}
                       className="h-12 flex flex-col gap-1 transition-all duration-200"
                     >
                       <ArrowRightLeft className="h-4 w-4" />
