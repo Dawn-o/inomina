@@ -44,7 +44,7 @@ export function Footer() {
       <div className="mt-8 pt-8 border-t border-border text-center">
         <Link href="https://github.com/dawn-o">
           <p className="text-sm text-muted-foreground hover:underline">
-            © 2024 Inomina: Better Finances.
+            © 2025 Inomina: Better Finances.
           </p>
         </Link>
       </div>
