@@ -101,6 +101,7 @@ export function TransactionsClient({
         defaultType={selectedType}
         onSubmit={() => {
           setOpen(false);
+          window.location.reload();
         }}
       />
     </>
