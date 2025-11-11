@@ -6,12 +6,10 @@ interface FinancialOverviewSectionProps {
     income: number;
     expenses: number;
   };
-  loading?: boolean;
 }
 
 export function FinancialOverviewSection({
   summary,
-  loading = false,
 }: FinancialOverviewSectionProps) {
   return (
     <section className="space-y-6">
@@ -21,7 +19,7 @@ export function FinancialOverviewSection({
           Financial Overview
         </h2>
       </div>
-      <SummaryCards data={summary} loading={loading} />
+      <SummaryCards data={summary} />
     </section>
   );
 }

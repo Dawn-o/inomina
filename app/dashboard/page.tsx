@@ -66,7 +66,7 @@ export default function Dashboard() {
       {loading ? (
         <FinancialOverviewSkeleton />
       ) : (
-        <FinancialOverviewSection summary={summary} loading={false} />
+        <FinancialOverviewSection summary={summary} />
       )}
 
       {loading ? (

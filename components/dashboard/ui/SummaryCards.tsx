@@ -9,30 +9,7 @@ type SummaryData = {
   savings?: number;
 };
 
-export function SummaryCards({
-  data,
-  loading,
-}: {
-  data: SummaryData;
-  loading?: boolean;
-}) {
-  if (loading) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[...Array(4)].map((_, i) => (
-          <Card key={i} className="shadow-sm">
-            <CardHeader className="pb-3">
-              <Skeleton className="h-4 w-32 mb-2" />
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="h-8 w-24" />
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    );
-  }
-
+export function SummaryCards({ data }: { data: SummaryData }) {
   const balance = data.balance ?? 0;
   const income = data.income ?? 0;
   const expenses = data.expenses ?? 0;
