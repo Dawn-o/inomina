@@ -117,18 +117,18 @@ export function CalendarView({
               <div className="text-xs space-y-1">
                 {day.income > 0 && (
                   <div className="text-green-600">
-                    +{formatCurrency(day.income)}
+                    +{formatCurrency(day.income)} Income
                   </div>
                 )}
                 {day.expenses > 0 && (
                   <div className="text-red-600">
-                    -{formatCurrency(day.expenses)}
+                    -{formatCurrency(day.expenses)} Expenses
                   </div>
                 )}
                 <div
                   className={`font-medium ${day.total >= 0 ? "text-green-600" : "text-red-600"}`}
                 >
-                  {formatCurrency(day.total)}
+                  {formatCurrency(day.total)} Total
                 </div>
               </div>
             )}

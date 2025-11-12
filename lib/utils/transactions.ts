@@ -2,8 +2,10 @@ import type { Transaction } from "@/lib/utils/types";
 
 export function groupByDate(transactions: Transaction[]) {
   return transactions.reduce<Record<string, Transaction[]>>((acc, tx) => {
-    if (!acc[tx.date]) acc[tx.date] = [];
-    acc[tx.date].push(tx);
+    // Normalize date to YYYY-MM-DD format to group transactions by day
+    const dateKey = new Date(tx.date).toISOString().split("T")[0];
+    if (!acc[dateKey]) acc[dateKey] = [];
+    acc[dateKey].push(tx);
     return acc;
   }, {});
 }
@@ -50,7 +52,7 @@ export function getMonthlySummary(transactions: Transaction[]) {
 
 export function getAllMonthsSummary(
   monthly: Record<string, { income: number; expenses: number }>,
-  year: number
+  year: number,
 ) {
   const months: { month: number; income: number; expenses: number }[] = [];
   for (let m = 0; m < 12; m++) {

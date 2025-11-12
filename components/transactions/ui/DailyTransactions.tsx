@@ -13,6 +13,8 @@ import {
   List,
   Grid,
   ReceiptText,
+  ChevronsDownIcon,
+  ChevronsUpIcon,
 } from "lucide-react";
 import { expenseCategories, incomeCategories } from "@/lib/utils/categories";
 import type { Transaction, TransactionType } from "@/lib/utils/types";
@@ -68,6 +70,7 @@ export function DailyTransactions({
     null,
   );
   const [viewMode, setViewMode] = useState<"list" | "cards">("cards");
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
   function handleEdit(tx: Transaction) {
     setEditTransaction(tx);
@@ -93,6 +96,18 @@ export function DailyTransactions({
         return <Banknote className="h-4 w-4" />;
     }
   };
+
+  const toggleCardExpansion = (date: string) => {
+    const newExpanded = new Set(expandedCards);
+    if (newExpanded.has(date)) {
+      newExpanded.delete(date);
+    } else {
+      newExpanded.add(date);
+    }
+    setExpandedCards(newExpanded);
+  };
+
+  const MAX_VISIBLE_TRANSACTIONS = 3;
 
   return (
     <>
@@ -129,6 +144,13 @@ export function DailyTransactions({
           .map((date) => {
             const display = formatDateDisplay(date);
             const dayTransactions = grouped[date];
+            const isExpanded = expandedCards.has(date);
+            const visibleTransactions = isExpanded
+              ? dayTransactions
+              : dayTransactions.slice(0, MAX_VISIBLE_TRANSACTIONS);
+            const hiddenCount =
+              dayTransactions.length - MAX_VISIBLE_TRANSACTIONS;
+
             const dayTotal = dayTransactions.reduce((sum, tx) => {
               if (tx.type === "Income") return sum + tx.amount;
               if (tx.type === "Expenses") return sum - Math.abs(tx.amount);
@@ -182,7 +204,7 @@ export function DailyTransactions({
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {dayTransactions.map((tx: Transaction) => {
+                  {visibleTransactions.map((tx: Transaction) => {
                     const Icon: React.ComponentType<{
                       className?: string;
                     }> | null = getCategoryIcon(tx.category, tx.type);
@@ -257,7 +279,7 @@ export function DailyTransactions({
                     );
                   })}
 
-                  {dayTransactions
+                  {(isExpanded ? dayTransactions : visibleTransactions)
                     .filter(
                       (tx: Transaction) =>
                         tx.type === "Transfer" && tx.hasFees && tx.feesAmount,
@@ -294,6 +316,30 @@ export function DailyTransactions({
                         </div>
                       </div>
                     ))}
+
+                  {hiddenCount > 0 && (
+                    <div className="pt-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleCardExpansion(date)}
+                        className="w-full text-xs text-muted-foreground hover:text-foreground"
+                      >
+                        {isExpanded ? (
+                          <>
+                            <ChevronsUpIcon className="h-3 w-3 mr-1" />
+                            Show Less
+                          </>
+                        ) : (
+                          <>
+                            <ChevronsDownIcon className="h-3 w-3 mr-1" />
+                            Show {hiddenCount} More Transaction
+                            {hiddenCount !== 1 ? "s" : ""}
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             );
