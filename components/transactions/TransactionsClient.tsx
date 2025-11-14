@@ -7,6 +7,7 @@ import { TransactionsContentSection } from "@/components/transactions/sections/T
 import { TransactionForm } from "@/components/transactions/ui/TransactionForm";
 import { groupByDate, getSummary } from "@/lib/utils/transactions";
 import { handlePrevTab, handleNextTab } from "@/lib/utils/navigation";
+import { useRealtimeTransactions } from "@/lib/hooks/useRealtimeTransactions";
 import type { Transaction, TransactionType } from "@/lib/utils/types";
 
 interface TransactionsClientProps {
@@ -18,7 +19,8 @@ export function TransactionsClient({
   transactions: initialTransactions,
   monthlySummary,
 }: TransactionsClientProps) {
-  const [transactions] = useState<Transaction[]>(initialTransactions);
+  const { transactions, setTransactions } =
+    useRealtimeTransactions(initialTransactions);
   const [open, setOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<TransactionType>("Expenses");
   const [tab, setTab] = useState<"daily" | "calendar" | "monthly">("daily");
@@ -60,7 +62,6 @@ export function TransactionsClient({
     "en-US",
     { month: "short" },
   );
-
   return (
     <>
       <TransactionsNavigationSection
@@ -91,8 +92,12 @@ export function TransactionsClient({
         currentMonthlyYear={currentMonthlyYear}
         currentMonth={currentMonth}
         currentYear={currentYear}
-        onUpdate={() => {}}
-        onDelete={() => {}}
+        onUpdate={() => {
+          // Realtime updates handle state changes automatically
+        }}
+        onDelete={() => {
+          // Realtime updates handle state changes automatically
+        }}
       />
 
       <TransactionForm
@@ -101,7 +106,6 @@ export function TransactionsClient({
         defaultType={selectedType}
         onSubmit={() => {
           setOpen(false);
-          window.location.reload();
         }}
       />
     </>

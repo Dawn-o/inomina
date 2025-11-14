@@ -25,7 +25,11 @@ import {
   transactionSchema,
   TransactionFormValues,
 } from "@/lib/schemas/transaction";
-import { addTransaction } from "@/app/transactions/actions";
+import {
+  addTransaction,
+  updateTransaction,
+  deleteTransaction,
+} from "@/app/transactions/actions";
 import {
   TrendingUp,
   TrendingDown,
@@ -146,7 +150,11 @@ export function TransactionForm({
           className="space-y-6"
           onSubmit={form.handleSubmit((data) => {
             startTransition(async () => {
-              await addTransaction(data);
+              if (isEditing && editTransaction) {
+                await updateTransaction(editTransaction.id, data);
+              } else {
+                await addTransaction(data);
+              }
               onSubmit?.(data);
               setOpen(false);
               form.reset();
@@ -461,12 +469,20 @@ export function TransactionForm({
           </div>
 
           <div className="flex items-center justify-between gap-3 p-4 border-t bg-muted/30">
-            {isEditing && onDelete && (
+            {isEditing && editTransaction && (
               <Button
                 type="button"
                 variant="destructive"
                 size="sm"
-                onClick={onDelete}
+                onClick={() => {
+                  startTransition(async () => {
+                    await deleteTransaction(editTransaction.id);
+                    onDelete?.();
+                    setOpen(false);
+                    form.reset();
+                  });
+                }}
+                disabled={isPending}
                 className="h-9"
               >
                 <Trash2 className="h-4 w-4" />

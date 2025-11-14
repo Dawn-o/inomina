@@ -99,3 +99,83 @@ export async function getTransactions(): Promise<Transaction[]> {
     throw new Error("Failed to fetch transactions");
   }
 }
+
+export async function updateTransaction(
+  id: number,
+  data: TransactionFormValues,
+) {
+  const parsed = transactionSchema.safeParse(data);
+  if (!parsed.success) {
+    throw new Error("Invalid data");
+  }
+
+  try {
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+    if (userError || !user) {
+      throw new Error("User not authenticated");
+    }
+
+    const transactionData = {
+      type: data.type,
+      date: new Date(data.date).toISOString(),
+      amount: data.amount,
+      category: data.category || null,
+      method: data.method,
+      transfer_target: data.transferTarget || null,
+      has_fees: data.hasFees || false,
+      fees_amount: data.feesAmount || 0,
+      description: data.description || null,
+    };
+
+    const { error: updateError } = await supabase
+      .from("transactions")
+      .update(transactionData)
+      .eq("id", id)
+      .eq("user_id", user.id);
+
+    if (updateError) {
+      console.error("Supabase update error:", updateError);
+      throw new Error("Failed to update transaction");
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Transaction update error:", error);
+    throw new Error("Failed to update transaction");
+  }
+}
+
+export async function deleteTransaction(id: number) {
+  try {
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+    if (userError || !user) {
+      throw new Error("User not authenticated");
+    }
+
+    const { error: deleteError } = await supabase
+      .from("transactions")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", user.id);
+
+    if (deleteError) {
+      console.error("Supabase delete error:", deleteError);
+      throw new Error("Failed to delete transaction");
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Transaction delete error:", error);
+    throw new Error("Failed to delete transaction");
+  }
+}
