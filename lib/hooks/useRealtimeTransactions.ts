@@ -18,7 +18,6 @@ export function useRealtimeTransactions(
       try {
         console.log("🔄 Setting up realtime subscription...");
 
-        // Get current user
         const {
           data: { user },
           error: userError,
@@ -31,7 +30,6 @@ export function useRealtimeTransactions(
           return;
         }
 
-        // Create realtime channel for transactions
         console.log("📡 Creating realtime channel for user:", user.id);
         channel = supabase
           .channel(`transactions_${user.id}`)
@@ -102,7 +100,6 @@ export function useRealtimeTransactions(
     };
   }, []);
 
-  // Helper function to transform database transaction to our Transaction type
   const transformTransaction = (dbTx: any): Transaction => ({
     id: dbTx.id,
     date: dbTx.date,
